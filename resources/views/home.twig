@@ -1,0 +1,79 @@
+{% extends 'layout/base.twig' %}
+
+{% block title %}LWPHP | Lightweight PHP Framework{% endblock %}
+
+{% block extra_css %}
+.hero {
+    padding: 8rem 0;
+    text-align: center;
+}
+
+.hero h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 4.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.1;
+}
+
+.hero p {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto 3rem;
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.feature-card h3 {
+    margin-bottom: 1rem;
+    font-family: 'Outfit', sans-serif;
+    color: var(--primary);
+}
+
+.glow-point {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+    top: -100px;
+    left: -100px;
+    z-index: -1;
+    pointer-events: none;
+}
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="glow-point"></div>
+    <h1>Lightweight PHP <br>Framework</h1>
+    <p>Elegant design, simple architecture, and blazing fast performance. The next generation of PHP development starts here.</p>
+    <div style="display: flex; gap: 1.5rem; justify-content: center;">
+        <a href="/admin" class="btn" style="padding: 1rem 2.5rem; font-size: 1.1rem;">Get Started</a>
+        <a href="/docs" class="btn" style="background: transparent; border: 1px solid var(--glass-border); padding: 1rem 2.5rem; font-size: 1.1rem;">Documentation</a>
+    </div>
+</section>
+
+<div class="features">
+    <div class="glass-card feature-card">
+        <h3>Fast Core</h3>
+        <p>Built with efficiency in mind. Minimal overhead and optimized DI container for sub-millisecond resolutions.</p>
+    </div>
+    <div class="glass-card feature-card">
+        <h3>Livewire + HTMX</h3>
+        <p>Fully reactive components without writing a single line of complex JavaScript. Stay in PHP/Twig.</p>
+    </div>
+    <div class="glass-card feature-card">
+        <h3>Secure by Design</h3>
+        <p>Advanced signature-based authentication and CSRF protection built into the core.</p>
+    </div>
+</div>
+{% endblock %}

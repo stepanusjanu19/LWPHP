@@ -1,0 +1,66 @@
+<?php
+
+namespace Kei\Lwphp\Controller;
+
+use Kei\Lwphp\Base\Controller;
+use Kei\Lwphp\Service\{{ className }}Service;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+
+class {{ className }}Controller extends Controller
+{
+    public function __construct(
+        private readonly {{ className }}Service $service
+    ) {
+        parent::__construct();
+    }
+
+    public function index(Request $request, array $args): Response
+    {
+        $items = $this->service->getAll(); 
+        return $this->render('{{ resourceNameLower }}s/index', ['items' => $items]);
+    }
+
+    public function create(Request $request, array $args): Response
+    {
+        return $this->render('{{ resourceNameLower }}s/form');
+    }
+
+    public function edit(Request $request, array $args): Response
+    {
+        $id = (int) ($args['id'] ?? 0);
+        $item = $this->service->getById($id);
+
+        if (!$item) {
+            return $this->notFound('{{ className }}', $id);
+        }
+
+        return $this->render('{{ resourceNameLower }}s/form', ['item' => $item]);
+    }
+
+    public function store(Request $request, array $args): Response
+    {
+        $data = $this->parseBody($request);
+        $this->service->create($data);
+        
+        // HTMX Refresh Header
+        return $this->factory->createResponse(200)->withHeader('HX-Refresh', 'true');
+    }
+
+    public function update(Request $request, array $args): Response
+    {
+        $id = (int) ($args['id'] ?? 0);
+        $data = $this->parseBody($request);
+        $this->service->update($id, $data);
+        
+        return $this->factory->createResponse(200)->withHeader('HX-Refresh', 'true');
+    }
+
+    public function destroy(Request $request, array $args): Response
+    {
+        $id = (int) ($args['id'] ?? 0);
+        $this->service->delete($id);
+        
+        return $this->factory->createResponse(200)->withHeader('HX-Refresh', 'true');
+    }
+}

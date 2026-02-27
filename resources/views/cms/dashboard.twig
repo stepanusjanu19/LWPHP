@@ -1,0 +1,177 @@
+{% extends 'layout/base.twig' %}
+
+{% block title %}Dashboard | LWPHP CMS{% endblock %}
+
+{% block extra_css %}
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.sidebar {
+    height: fit-content;
+}
+
+.sidebar-nav {
+    list-style: none;
+}
+
+.sidebar-nav li {
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-nav a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.sidebar-nav a:hover, .sidebar-nav a.active {
+    background: rgba(79, 70, 229, 0.1);
+    color: var(--primary);
+}
+
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.stat-card h4 {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card .value {
+    font-size: 2rem;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+}
+
+.generator-section {
+    margin-top: 2rem;
+}
+
+.console-output {
+    background: #000;
+    color: #10b981;
+    font-family: 'Courier New', Courier, monospace;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    min-height: 100px;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--glass-border);
+}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <aside class="sidebar glass-card">
+        <div style="margin-bottom: 2rem; padding: 0 1rem;">
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Signed in as</p>
+            <p style="font-weight: 600;">{{ username }}</p>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="/admin" class="active">Overview</a></li>
+            <li><a href="/posts">Post Management</a></li>
+            <li><a href="/categorys">Categories</a></li>
+            <li><a href="/tasks">Systems Tasks</a></li>
+            <li><a href="/schema">Schema Explorer</a></li>
+        </ul>
+    </aside>
+
+    <div class="main-content">
+        <div class="stats-row">
+            <div class="glass-card stat-card">
+                <h4>Total Posts</h4>
+                <div class="value">24</div>
+            </div>
+            <div class="glass-card stat-card">
+                <h4>Active Users</h4>
+                <div class="value">1,284</div>
+            </div>
+            <div class="glass-card stat-card">
+                <h4>System Load</h4>
+                <div class="value">0.12ms</div>
+            </div>
+        </div>
+
+        <section class="generator-section glass-card">
+            <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 1rem;">Interactive CMS Generator</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Use the RPC Gateway to dynamically scaffold your application components.</p>
+            
+            <div style="display: flex; gap: 1rem; align-items: flex-end;">
+                <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">Resource Name</label>
+                    <input type="text" id="gen_name" class="form-control" placeholder="e.g. Product" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; padding: 0.8rem; border-radius: 8px; width: 100%;">
+                </div>
+                <button onclick="runRpc('generateCrud')" class="btn">Generate CRUD</button>
+                <button onclick="runRpc('generateLivewire')" class="btn" style="background: var(--accent);">Generate Livewire</button>
+            </div>
+
+            <div id="rpc_output" class="console-output" style="display: none;">
+                <div style="color: var(--text-muted); margin-bottom: 0.5rem;">[System Console] Initializing RPC Request...</div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+async function runRpc(method) {
+    const name = document.getElementById('gen_name').value;
+    if (!name) {
+        alert('Please enter a resource name');
+        return;
+    }
+
+    const outputDiv = document.getElementById('rpc_output');
+    outputDiv.style.display = 'block';
+    outputDiv.innerHTML = '<div style="color: var(--text-muted);">[RPC] Calling GeneratorService::' + method + '("' + name + '")...</div>';
+
+    try {
+        const response = await fetch('/rpc', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                service: 'GeneratorService',
+                method: method,
+                params: [name],
+                id: Date.now()
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.result && data.result.success) {
+            outputDiv.innerHTML += '<div style="color: #10b981; margin-top: 10px;">✔ Success! Components created successfully.</div>';
+            outputDiv.innerHTML += '<pre style="margin-top: 10px; color: #d1d5db; white-space: pre-wrap;">' + data.result.message + '</pre>';
+        } else {
+            outputDiv.innerHTML += '<div style="color: #ef4444; margin-top: 10px;">✖ Error: ' + (data.error ? data.error.message : 'Unknown generator error') + '</div>';
+        }
+    } catch (err) {
+        outputDiv.innerHTML += '<div style="color: #ef4444; margin-top: 10px;">✖ Network Error: ' + err.message + '</div>';
+    }
+}
+</script>
+{% endblock %}

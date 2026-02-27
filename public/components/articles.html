@@ -1,0 +1,25 @@
+<!-- UI Template for Article -->
+<div class="glass p-6 rounded-xl fade-in max-w-4xl mx-auto mt-6">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h2 class="text-xl font-bold text-white">Article Management</h2>
+      <p class="text-sm text-slate-400">View and manage all Article entries</p>
+    </div>
+    <button class="btn btn-primary" onclick="openCreateModal()">+ Create New</button>
+  </div>
+  
+  <div class="overflow-x-auto">
+    <table class="w-full text-left">
+      <thead>
+        <tr class="border-b border-slate-700">
+          <th class="py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">ID</th>
+          <th class="py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Name</th>
+          <th class="py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="articles-list" class="divide-y divide-slate-800">
+        <!-- Rendered via JS -->
+      </tbody>
+    </table>
+  </div>
+</div>

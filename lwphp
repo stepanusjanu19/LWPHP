@@ -1,0 +1,49 @@
+#!/usr/bin/env php
+<?php
+
+if (function_exists('ini_set')) {
+    ini_set('xdebug.mode', 'off');
+}
+putenv('XDEBUG_MODE=off');
+
+require __DIR__ . '/vendor/autoload.php';
+
+use Symfony\Component\Console\Application;
+use DI\ContainerBuilder;
+use Kei\Lwphp\Console\MakeEntityCommand;
+use Kei\Lwphp\Console\MakeRepositoryCommand;
+use Kei\Lwphp\Console\MakeServiceCommand;
+use Kei\Lwphp\Console\MakeControllerCommand;
+use Kei\Lwphp\Console\MakeViewCommand;
+use Kei\Lwphp\Console\MakeCrudCommand;
+use Kei\Lwphp\Console\MakeLivewireCommand;
+use Kei\Lwphp\Console\MigrateCommand;
+use Kei\Lwphp\Console\ServeCommand;
+
+function base_path(string $path = ''): string
+{
+    return __DIR__ . ($path ? '/' . $path : '');
+}
+
+// 1. Boot Container
+$builder = new ContainerBuilder();
+$builder->useAttributes(true);
+$builder->addDefinitions(base_path('config/di/definitions.php'));
+$container = $builder->build();
+
+// 2. Setup Application
+$app = new Application('LWPHP CLI', '1.0.0');
+
+// 3. Register Commands
+$app->add(new MakeEntityCommand());
+$app->add(new MakeRepositoryCommand());
+$app->add(new MakeServiceCommand());
+$app->add(new MakeControllerCommand());
+$app->add(new MakeViewCommand());
+$app->add(new MakeCrudCommand());
+$app->add(new MakeLivewireCommand());
+$app->add($container->get(MigrateCommand::class));
+$app->add(new ServeCommand());
+
+// 4. Run
+$app->run();

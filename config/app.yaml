@@ -1,0 +1,33 @@
+app:
+  debug: true
+  logging:
+    channel: 'app'
+    level: 'debug'
+    path: 'storage/logs/lwphp.log'
+    threat_log: 'storage/logs/threats.log'
+
+database:
+  default: sqlite
+  entity_path: 'src/Entity'
+  connections:
+    sqlite:
+      driver: pdo_sqlite
+      path: 'storage/database.sqlite'
+
+security:
+  rate_limit:
+    window_seconds: 60
+    max_requests: 180
+    burst_bonus: 20
+  blocked_ips: []
+  allowed_ips: []
+
+bandwidth:
+  slow_threshold_ms: 3000
+  gzip: true
+
+cache:
+  default: file
+  stores:
+    file:
+      path: '/tmp/lwphp_cache'

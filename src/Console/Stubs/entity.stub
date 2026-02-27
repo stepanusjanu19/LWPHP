@@ -1,0 +1,31 @@
+<?php
+
+namespace Kei\Lwphp\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Kei\Lwphp\Base\Entity;
+
+#[ORM\Entity]
+#[ORM\Table(name: '{{ tableName }}')]
+class {{ className }} extends Entity
+{
+    // Define your columns here...
+    // Example:
+    // #[ORM\Column(type: 'string', length: 255)]
+    // private string $name;
+
+    public function __construct()
+    {
+        parent::__construct();
+        // Initialize collections or default values
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'created_at' => $this->createdAt->format(\DateTimeInterface::ATOM),
+            'updated_at' => $this->updatedAt->format(\DateTimeInterface::ATOM),
+        ];
+    }
+}

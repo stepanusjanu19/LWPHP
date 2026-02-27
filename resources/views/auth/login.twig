@@ -1,0 +1,77 @@
+{% extends 'layout/base.twig' %}
+
+{% block title %}Login | LWPHP CMS{% endblock %}
+
+{% block extra_css %}
+.login-container {
+    max-width: 450px;
+    margin: 6rem auto;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.error-msg {
+    color: #ef4444;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 6px;
+}
+{% endblock %}
+
+{% block content %}
+<div class="login-container glass-card">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.8rem;">Welcome Back</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Log in to access your CMS Dashboard</p>
+    </div>
+
+    {% if error %}
+        <div class="error-msg">{{ error }}</div>
+    {% endif %}
+
+    <form action="/login" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" class="form-control" placeholder="Enter username" required autofocus>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; padding: 1rem; font-size: 1rem; margin-top: 1rem;">
+            Sign In
+        </button>
+    </form>
+</div>
+{% endblock %}

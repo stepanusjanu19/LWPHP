@@ -1,0 +1,50 @@
+<?php
+
+namespace Kei\Lwphp\Service;
+
+use Kei\Lwphp\Base\Service;
+use Kei\Lwphp\Repository\{{ className }}Repository;
+use Psr\Log\LoggerInterface;
+
+class {{ className }}Service extends Service
+{
+    public function __construct(
+        private readonly {{ className }}Repository $repository,
+        LoggerInterface $logger
+    ) {
+        parent::__construct($logger);
+    }
+
+    public function getAll(): array
+    {
+        return $this->repository->findAll();
+    }
+
+    public function getById(int $id)
+    {
+        return $this->repository->findById($id);
+    }
+
+    public function create(array $data)
+    {
+        return $this->execute(function () use ($data) {
+            // Validate data, create entity, persist via repository
+            // return $entity;
+        }, 'Create {{ className }}');
+    }
+
+    public function update(int $id, array $data)
+    {
+        return $this->execute(function () use ($id, $data) {
+            // Fetch entity, update fields, persist
+            // return $entity;
+        }, 'Update {{ className }}');
+    }
+
+    public function delete(int $id): bool
+    {
+        return $this->execute(function () use ($id) {
+            return $this->repository->delete($id);
+        }, 'Delete {{ className }}');
+    }
+}

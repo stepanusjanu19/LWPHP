@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LWPHP CMS — Control Panel</title>
+    <meta name="description"
+        content="LWPHP Framework Admin CMS — Manage tasks, jobs, and system health with a fully dynamic CRUD generator." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: {
+                        slate: { 950: '#020617' },
+                        violet: { 550: '#7c3aed' },
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f0f1a;
+            color: #e2e8f0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e2e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4c4c7a;
+            border-radius: 3px;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glow {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .card-hover {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.4
+            }
+        }
+
+        .pulse-dot {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .sidebar-item {
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .sidebar-item.active {
+            background: rgba(139, 92, 246, 0.25);
+            border-left: 3px solid #8b5cf6;
+            color: #a78bfa;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-yellow {
+            background: rgba(234, 179, 8, 0.2);
+            color: #facc15;
+        }
+
+        .badge-blue {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .badge-green {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+
+        .badge-red {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .badge-gray {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
+
+        .badge-violet {
+            background: rgba(139, 92, 246, 0.2);
+            color: #a78bfa;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            background: rgba(255, 255, 255, 0.03);
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #64748b;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        thead th:hover {
+            color: #a78bfa;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            transition: background 0.15s;
+        }
+
+        tbody tr:hover {
+            background: rgba(139, 92, 246, 0.06);
+        }
+
+        tbody td {
+            padding: 10px 12px;
+            font-size: 13px;
+            color: #cbd5e1;
+            vertical-align: middle;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            color: white;
+            border-color: #8b5cf6;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.07);
+            color: #cbd5e1;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-success {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-success:hover {
+            background: rgba(34, 197, 94, 0.25);
+        }
+
+        .btn-sm {
+            padding: 3px 8px;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+
+        input,
+        select,
+        textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #e2e8f0;
+            font-family: inherit;
+            font-size: 13px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        input[type=checkbox] {
+            width: auto;
+            cursor: pointer;
+        }
+
+        select option {
+            background: #1e1e2e;
+        }
+
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-bg.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #14141f;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            animation: fadeIn 0.3s;
+            min-width: 200px;
+        }
+
+        .toast-success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+
+        .toast-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+
+        .search-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            padding: 6px 10px;
+            color: #e2e8f0;
+            font-size: 13px;
+            width: 200px;
+        }
+
+        .pagination-btn {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+            transition: all 0.15s;
+        }
+
+        .pagination-btn:hover {
+            border-color: #8b5cf6;
+            color: #a78bfa;
+        }
+
+        .pagination-btn.active {
+            background: rgba(139, 92, 246, 0.3);
+            border-color: #8b5cf6;
+            color: #a78bfa;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        #sidebar {
+            width: 240px;
+            min-width: 240px;
+        }
+
+        .sort-asc::after {
+            content: ' ↑';
+            color: #8b5cf6;
+        }
+
+        .sort-desc::after {
+            content: ' ↓';
+            color: #8b5cf6;
+        }
+    </style>
+</head>
+
+<body class="dark min-h-screen flex flex-col">
+
+    <!-- Toast -->
+    <div id="toast" class="toast" style="display:none;"></div>
+
+    <!-- Modal -->
+    <div id="modal-bg" class="modal-bg">
+        <div class="modal fade-in" id="modal">
+            <div class="flex justify-between items-center mb-5">
+                <h3 id="modal-title" class="text-lg font-semibold text-white"></h3>
+                <button onclick="closeModal()"
+                    class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+            </div>
+            <div id="modal-body"></div>
+            <div id="modal-footer" class="flex gap-3 mt-5 pt-4 border-t border-slate-800"></div>
+        </div>
+    </div>
+
+    <!-- Layout -->
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="glass flex flex-col border-r border-slate-800 overflow-y-auto">
+            <!-- Logo -->
+            <div class="px-5 py-4 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-violet-800 flex items-center justify-center text-white font-bold text-sm glow">
+                        LW</div>
+                    <div>
+                        <div class="text-sm font-semibold text-white">LWPHP CMS</div>
+                        <div class="text-xs text-slate-500">Control Panel</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nav -->
+            <nav class="flex-1 py-3 px-2">
+                <div class="text-xs text-slate-600 uppercase font-semibold px-3 mb-2 mt-1 tracking-wide">Overview</div>
+                <button id="nav-dashboard" onclick="navigate('dashboard')"
+                    class="sidebar-item w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-slate-300 text-sm mb-0.5">
+                    <span>📊</span> Dashboard
+                </button>
+
+                <div class="text-xs text-slate-600 uppercase font-semibold px-3 mb-2 mt-4 tracking-wide">Resources</div>
+                <div id="nav-resources"></div>
+
+                <div class="text-xs text-slate-600 uppercase font-semibold px-3 mb-2 mt-4 tracking-wide">System</div>
+                <button id="nav-benchmark" onclick="navigate('benchmark')"
+                    class="sidebar-item w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-slate-300 text-sm mb-0.5">
+                    <span>⚡</span> Benchmark
+                </button>
+                <button id="nav-security" onclick="navigate('security')"
+                    class="sidebar-item w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-slate-300 text-sm mb-0.5">
+                    <span>🛡️</span> Security
+                </button>
+            </nav>
+
+            <!-- Worker Status -->
+            <div class="px-4 py-3 border-t border-slate-800">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs text-slate-500">Worker</span>
+                    <div id="worker-dot" class="w-2 h-2 rounded-full bg-gray-600"></div>
+                </div>
+                <div id="worker-status" class="text-xs text-slate-600">Checking…</div>
+                <div class="mt-1 text-xs text-slate-600" id="queue-depth"></div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+
+            <!-- Header -->
+            <header
+                class="sticky top-0 z-10 glass border-b border-slate-800 px-6 py-3 flex items-center justify-between">
+                <div>
+                    <h1 id="page-title" class="text-base font-semibold text-white">Dashboard</h1>
+                    <p id="page-subtitle" class="text-xs text-slate-500"></p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="btn-refresh" onclick="refresh()" class="btn btn-secondary btn-sm" title="Refresh">
+                        <span id="refresh-icon">↻</span> Refresh
+                    </button>
+                    <button id="btn-create" class="btn btn-primary btn-sm" onclick="openCreateModal()"
+                        style="display:none;">
+                        + New
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div id="page-content" class="p-6 fade-in"></div>
+
+        </main>
+    </div>
+
+    <script>
+        // ─────────────────────────────────────────────────────────────────────────────
+        // State
+        // ─────────────────────────────────────────────────────────────────────────────
+        let SCHEMAS = {};
+        let currentPage = 'dashboard';
+        let currentResource = null;
+        let tableData = [];
+        let filteredData = [];
+        let sortCol = null;
+        let sortDir = 'asc';
+        let pageNum = 1;
+        let pageLimit = 25;
+        let searchQuery = '';
+        let autoRefreshTimer = null;
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // API helpers
+        // ─────────────────────────────────────────────────────────────────────────────
+        async function api(method, path, body = null) {
+            const opts = {
+                method,
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(path, opts);
+            const text = await res.text();
+            try { return { ok: res.ok, status: res.status, data: JSON.parse(text) }; }
+            catch { return { ok: false, status: res.status, data: { error: text } }; }
+        }
+
+        function toast(msg, type = 'success') {
+            const el = document.getElementById('toast');
+            el.className = `toast toast-${type}`;
+            el.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
+            el.style.display = 'flex';
+            setTimeout(() => el.style.display = 'none', 3500);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // Boot
+        // ─────────────────────────────────────────────────────────────────────────────
+        async function boot() {
+            // Load all schemas
+            const { data } = await api('GET', '/schema');
+            if (data?.resources) {
+                for (const r of data.resources) {
+                    const { data: sch } = await api('GET', `/schema/${r.name}`);
+                    if (sch?.schema) SCHEMAS[r.name] = sch.schema;
+                }
+            }
+            buildSidebar();
+            navigate('dashboard');
+            pollWorkerStatus();
+            setInterval(pollWorkerStatus, 5000);
+        }
+
+        function buildSidebar() {
+            const nav = document.getElementById('nav-resources');
+            nav.innerHTML = '';
+            for (const [name, schema] of Object.entries(SCHEMAS)) {
+                const icon = name === 'tasks' ? '✅' : name === 'jobs' ? '⚙️' : '📁';
+                const btn = document.createElement('button');
+                btn.id = `nav-${name}`;
+                btn.className = 'sidebar-item w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-slate-300 text-sm mb-0.5';
+                btn.innerHTML = `<span>${icon}</span> ${schema.label}`;
+                btn.onclick = () => navigate('resource', name);
+                nav.appendChild(btn);
+            }
+        }
+
+        async function pollWorkerStatus() {
+            const { data } = await api('GET', '/workers/status');
+            const dot = document.getElementById('worker-dot');
+            const status = document.getElementById('worker-status');
+            const depth = document.getElementById('queue-depth');
+            if (data?.worker) {
+                const running = data.worker.running;
+                dot.className = `w-2 h-2 rounded-full ${running ? 'bg-green-400 pulse-dot' : 'bg-gray-500'}`;
+                status.textContent = running ? `Running (PID ${data.worker.pid})` : 'Not running';
+                depth.textContent = `Queue: ${data.queue?.by_status?.pending || 0} pending`;
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // Navigation
+        // ─────────────────────────────────────────────────────────────────────────────
+        function navigate(page, resource = null) {
+            // Clear auto-refresh
+            if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+
+            // Update nav state
+            document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+            const navEl = document.getElementById(`nav-${page === 'resource' ? resource : page}`);
+            if (navEl) navEl.classList.add('active');
+
+            currentPage = page;
+            currentResource = resource;
+
+            const createBtn = document.getElementById('btn-create');
+            createBtn.style.display = (page === 'resource' && resource !== 'jobs') ? 'flex' : 'none';
+
+            const content = document.getElementById('page-content');
+            content.innerHTML = '<div class="flex justify-center items-center h-40"><div class="spin w-8 h-8 rounded-full border-2 border-violet-500 border-t-transparent"></div></div>';
+
+            if (page === 'dashboard') renderDashboard();
+            else if (page === 'resource') renderResource(resource);
+            else if (page === 'benchmark') renderBenchmark();
+            else if (page === 'security') renderSecurity();
+        }
+
+        function setTitle(title, sub = '') {
+            document.getElementById('page-title').textContent = title;
+            document.getElementById('page-subtitle').textContent = sub;
+        }
+
+        function refresh() {
+            const icon = document.getElementById('refresh-icon');
+            icon.classList.add('spin');
+            navigate(currentPage, currentResource);
+            setTimeout(() => icon.classList.remove('spin'), 600);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // Dashboard
+        // ─────────────────────────────────────────────────────────────────────────────
+        async function renderDashboard() {
+            setTitle('Dashboard', 'System overview');
+            const content = document.getElementById('page-content');
+
+            const [tasks, jobs, workers] = await Promise.all([
+                api('GET', '/tasks'),
+                api('GET', '/jobs'),
+                api('GET', '/workers/status'),
+            ]);
+
+            const ts = tasks.data?.stats || {};
+            const js = jobs.data?.stats || {};
+            const wk = workers.data || {};
+
+            const cards = [
+                { label: 'Total Tasks', value: ts.total || 0, sub: `${ts.by_status?.pending || 0} pending`, color: 'violet', icon: '✅' },
+                { label: 'Done Tasks', value: ts.by_status?.done || 0, sub: 'completed', color: 'green', icon: '🎯' },
+                { label: 'Total Jobs', value: js.total || 0, sub: `${js.by_status?.pending || 0} pending`, color: 'blue', icon: '⚙️' },
+                { label: 'Worker', value: wk.worker?.running ? 'Running' : 'Stopped', sub: wk.worker?.running ? `PID ${wk.worker.pid}` : 'php bin/worker.php', color: wk.worker?.running ? 'green' : 'red', icon: '🔧' },
+            ];
+
+            content.innerHTML = `
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      ${cards.map(c => `
+        <div class="stat-card card-hover cursor-pointer" onclick="navigate('resource','${c.icon === '✅' ? 'tasks' : 'jobs'}')">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs text-slate-500 mb-1">${c.label}</p>
+              <p class="text-2xl font-bold text-white">${c.value}</p>
+              <p class="text-xs text-slate-500 mt-1">${c.sub}</p>
+            </div>
+            <span class="text-2xl">${c.icon}</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="glass rounded-xl p-4">
+        <h3 class="text-sm font-semibold text-slate-300 mb-3">📋 Recent Tasks</h3>
+        <div id="dash-tasks" class="text-xs text-slate-500">Loading…</div>
+      </div>
+      <div class="glass rounded-xl p-4">
+        <h3 class="text-sm font-semibold text-slate-300 mb-3">⚙️ Recent Jobs</h3>
+        <div id="dash-jobs" class="text-xs text-slate-500">Loading…</div>
+      </div>
+      <div class="glass rounded-xl p-4">
+        <h3 class="text-sm font-semibold text-slate-300 mb-4">📊 Task Status Distribution</h3>
+        <div id="task-chart" class="space-y-2"></div>
+      </div>
+      <div class="glass rounded-xl p-4">
+        <h3 class="text-sm font-semibold text-slate-300 mb-4">📊 Job Status Distribution</h3>
+        <div id="job-chart" class="space-y-2"></div>
+      </div>
+    </div>
+  `;
+
+            // Recent tasks
+            const tData = (tasks.data?.data || []).slice(0, 5);
+            document.getElementById('dash-tasks').innerHTML = tData.length
+                ? tData.map(t => `<div class="flex items-center justify-between py-1.5 border-b border-slate-800">
+        <span class="text-slate-300">${esc(t.title)}</span>
+        <span class="badge badge-${badgeClass(t.status)}">${t.status}</span>
+      </div>`).join('')
+                : '<span>No tasks yet</span>';
+
+            // Recent jobs
+            const jData = (jobs.data?.data || []).slice(0, 5);
+            document.getElementById('dash-jobs').innerHTML = jData.length
+                ? jData.map(j => `<div class="flex items-center justify-between py-1.5 border-b border-slate-800">
+        <span class="text-slate-300 font-mono">${esc(j.name)}</span>
+        <span class="badge badge-${badgeClass(j.status)}">${j.status}</span>
+      </div>`).join('')
+                : '<span>No jobs yet</span>';
+
+            // Bar charts
+            renderBarChart('task-chart', ts.by_status || {});
+            renderBarChart('job-chart', js.by_status || {});
+        }
+
+        function renderBarChart(id, data) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const total = Object.values(data).reduce((a, b) => a + b, 0) || 1;
+            const colors = { pending: '#facc15', in_progress: '#60a5fa', processing: '#60a5fa', done: '#4ade80', completed: '#4ade80', failed: '#f87171', cancelled: '#94a3b8' };
+            el.innerHTML = Object.entries(data).map(([k, v]) => `
+    <div>
+      <div class="flex justify-between text-xs text-slate-400 mb-1">
+        <span>${k.replace('_', ' ')}</span><span>${v}</span>
+      </div>
+      <div class="h-1.5 rounded-full bg-slate-800 overflow-hidden">
+        <div class="h-full rounded-full transition-all" style="width:${Math.round(v / total * 100)}%;background:${colors[k] || '#8b5cf6'}"></div>
+      </div>
+    </div>
+  `).join('');
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // Dynamic Resource CRUD Table
+        // ─────────────────────────────────────────────────────────────────────────────
+        async function renderResource(name) {
+            const schema = SCHEMAS[name];
+            if (!schema) { navigate('dashboard'); return; }
+
+            setTitle(schema.label, `${schema.label} — full CRUD management`);
+            const content = document.getElementById('page-content');
+
+            // Toolbar
+            content.innerHTML = `
+    <div class="glass rounded-xl overflow-hidden">
+      <!-- Toolbar -->
+      <div class="px-4 py-3 border-b border-slate-800 flex items-center gap-3 flex-wrap">
+        <input id="search-input" class="search-input" placeholder="Search…" oninput="onSearch(this.value)" value="${esc(searchQuery)}" />
+        ${schema.filterable?.map(f => {
+                const field = schema.fields.find(x => x.name === f);
+                const opts = field?.badges ? Object.keys(field.badges) : (field?.options || []);
+                return `<select id="filter-${f}" onchange="refresh()" class="search-input" style="width:150px;">
+            <option value="">All ${field?.label || f}</option>
+            ${opts.map(o => `<option value="${o}">${o}</option>`).join('')}
+          </select>`;
+            }).join('') || ''}
+        <div class="ml-auto flex gap-2">
+          <select id="limit-select" class="search-input" style="width:80px;" onchange="pageLimit=+this.value;pageNum=1;rerender()">
+            <option value="10">10</option>
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+          </select>
+          ${name === 'jobs' ? `
+            <button class="btn btn-danger btn-sm" onclick="purgeJobs()">Purge Done</button>
+            <button class="btn btn-primary btn-sm" onclick="openDispatchModal()">⚡ Dispatch</button>
+          ` : ''}
+        </div>
+      </div>
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table id="resource-table">
+          <thead><tr id="thead-row"></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <!-- Pagination -->
+      <div class="px-4 py-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
+        <span id="pagination-info"></span>
+        <div id="pagination-btns" class="flex gap-1"></div>
+      </div>
+    </div>
+  `;
+
+            await loadResourceData(name);
+            if (name === 'jobs') {
+                autoRefreshTimer = setInterval(() => loadResourceData(name), 3000);
+            }
+        }
+
+        async function loadResourceData(name) {
+            const schema = SCHEMAS[name];
+            const res = await api('GET', schema.api + '?limit=200');
+            tableData = res.data?.data || [];
+            pageNum = 1;
+            rerender();
+        }
+
+        function rerender() {
+            const name = currentResource;
+            const schema = SCHEMAS[name];
+            if (!schema) return;
+
+            // Filter
+            const q = searchQuery.toLowerCase();
+            filteredData = tableData.filter(row => {
+                const filterMatch = schema.filterable?.every(f => {
+                    const sel = document.getElementById(`filter-${f}`);
+                    return !sel?.value || row[f] === sel.value;
+                }) ?? true;
+                const searchMatch = !q || JSON.stringify(row).toLowerCase().includes(q);
+                return filterMatch && searchMatch;
+            });
+
+            // Sort
+            if (sortCol) {
+                filteredData.sort((a, b) => {
+                    const va = a[sortCol] ?? '';
+                    const vb = b[sortCol] ?? '';
+                    const cmp = String(va).localeCompare(String(vb), undefined, { numeric: true });
+                    return sortDir === 'asc' ? cmp : -cmp;
+                });
+            }
+
+            // Paginate
+            const total = filteredData.length;
+            const pages = Math.ceil(total / pageLimit) || 1;
+            pageNum = Math.min(pageNum, pages);
+            const start = (pageNum - 1) * pageLimit;
+            const sliced = filteredData.slice(start, start + pageLimit);
+
+            // Render header
+            const listFields = schema.fields.filter(f => f.list);
+            const thead = document.getElementById('thead-row');
+            if (thead) {
+                thead.innerHTML = listFields.map(f => {
+                    const cls = sortCol === f.name ? (sortDir === 'asc' ? 'sort-asc' : 'sort-desc') : '';
+                    return `<th class="${cls}" onclick="onSort('${f.name}')">${f.label}</th>`;
+                }).join('') + '<th>Actions</th>';
+            }
+
+            // Render body
+            const tbody = document.getElementById('tbody');
+            if (tbody) {
+                tbody.innerHTML = sliced.length ? sliced.map(row => renderRow(row, schema)).join('') : `
+      <tr><td colspan="${listFields.length + 1}" class="text-center py-8 text-slate-600">No data found</td></tr>
+    `;
+            }
+
+            // Pagination
+            const info = document.getElementById('pagination-info');
+            if (info) info.textContent = `Showing ${start + 1}–${Math.min(start + pageLimit, total)} of ${total}`;
+            renderPagination(pages);
+        }
+
+        function renderRow(row, schema) {
+            const listFields = schema.fields.filter(f => f.list);
+            const cells = listFields.map(f => {
+                const val = row[f.name];
+                if (val === null || val === undefined) return '<td class="text-slate-600">—</td>';
+                if (f.type === 'badge') {
+                    const color = f.badges?.[val] || 'gray';
+                    return `<td><span class="badge badge-${color}">${val.replace(/_/g, ' ')}</span></td>`;
+                }
+                if (f.type === 'datetime') {
+                    if (!val) return '<td class="text-slate-600">—</td>';
+                    return `<td class="text-slate-400 font-mono text-xs">${new Date(val).toLocaleString()}</td>`;
+                }
+                if (f.type === 'float') return `<td>${val ? val.toFixed(1) + 'ms' : '—'}</td>`;
+                if (f.type === 'int' && f.name === 'id') return `<td><span class="font-mono text-violet-400">#${val}</span></td>`;
+                return `<td class="max-w-xs truncate" title="${esc(String(val))}">${esc(String(val))}</td>`;
+            }).join('');
+
+            const actions = renderActions(row, schema);
+            return `<tr>${cells}<td class="whitespace-nowrap">${actions}</td></tr>`;
+        }
+
+        function renderActions(row, schema) {
+            const name = currentResource;
+            let html = '';
+
+            // Lifecycle actions for tasks
+            if (schema.lifecycle?.length) {
+                if (row.status === 'pending') {
+                    html += `<button class="btn btn-success btn-sm mr-1" onclick="lifecycle(${row.id},'start')">▶ Start</button>`;
+                }
+                if (row.status === 'in_progress') {
+                    html += `<button class="btn btn-success btn-sm mr-1" onclick="lifecycle(${row.id},'complete')">✔ Done</button>`;
+                }
+                if (row.status !== 'done' && row.status !== 'cancelled') {
+                    html += `<button class="btn btn-secondary btn-sm mr-1" onclick="lifecycle(${row.id},'cancel')">✕</button>`;
+                }
+            }
+
+            // Edit (not for jobs or readonly entities)
+            if (name !== 'jobs') {
+                html += `<button class="btn btn-secondary btn-sm mr-1" onclick="openEditModal(${JSON.stringify(JSON.stringify(row))})">✏</button>`;
+            }
+
+            // Delete/cancel
+            html += `<button class="btn btn-danger btn-sm" onclick="deleteRecord(${row.id})">🗑</button>`;
+            return html;
+        }
+
+        function renderPagination(pages) {
+            const el = document.getElementById('pagination-btns');
+            if (!el || pages <= 1) { if (el) el.innerHTML = ''; return; }
+            let html = `<button class="pagination-btn" onclick="gotoPage(${pageNum - 1})" ${pageNum <= 1 ? 'disabled' : ''}>‹</button>`;
+            for (let i = 1; i <= Math.min(pages, 7); i++) {
+                html += `<button class="pagination-btn ${i === pageNum ? 'active' : ''}" onclick="gotoPage(${i})">${i}</button>`;
+            }
+            if (pages > 7) html += `<span class="text-slate-600 px-1">…</span><button class="pagination-btn ${pages === pageNum ? 'active' : ''}" onclick="gotoPage(${pages})">${pages}</button>`;
+            html += `<button class="pagination-btn" onclick="gotoPage(${pageNum + 1})" ${pageNum >= pages ? 'disabled' : ''}>›</button>`;
+            el.innerHTML = html;
+        }
+
+        function gotoPage(p) { pageNum = p; rerender(); }
+        function onSort(col) { sortDir = sortCol === col && sortDir === 'asc' ? 'desc' : 'asc'; sortCol = col; rerender(); }
+        function onSearch(v) { searchQuery = v; pageNum = 1; rerender(); }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // CRUD actions
+        // ─────────────────────────────────────────────────────────────────────────────
+        async function lifecycle(id, action) {
+            const { ok, data } = await api('POST', `/tasks/${id}/${action}`);
+            if (ok) { toast(`Task ${action}ed`); await loadResourceData(currentResource); }
+            else toast(data?.error || 'Error', 'error');
+        }
+
+        async function deleteRecord(id) {
+            const schema = SCHEMAS[currentResource];
+            if (!confirm(`Delete ${schema?.label.slice(0, -1) || 'record'} #${id}?`)) return;
+            const endpoint = currentResource === 'jobs' ? `/jobs/${id}` : `/tasks/${id}`;
+            const { ok, data } = await api('DELETE', endpoint);
+            if (ok) { toast('Deleted'); await loadResourceData(currentResource); }
+            else toast(data?.error || 'Error', 'error');
+        }
+
+        async function purgeJobs() {
+            if (!confirm('Purge all done/failed jobs?')) return;
+            const { ok, data } = await api('DELETE', '/jobs/purge');
+            if (ok) { toast(data?.message || 'Purged'); await loadResourceData('jobs'); }
+            else toast(data?.error || 'Error', 'error');
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // Modals — Dynamic form generation from schema
+        // ─────────────────────────────────────────────────────────────────────────────
+        function openCreateModal() {
+            const schema = SCHEMAS[currentResource];
+            if (!schema) return;
+            document.getElementById('modal-title').textContent = `New ${schema.label.replace(/s$/, '')}`;
+            document.getElementById('modal-body').innerHTML = buildForm(schema, null);
+            document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="submitCreate()">Create</button>
+  `;
+            openModal();
+        }
+
+        function openEditModal(jsonStr) {
+            const row = JSON.parse(jsonStr);
+            const schema = SCHEMAS[currentResource];
+            if (!schema) return;
+            document.getElementById('modal-title').textContent = `Edit #${row.id}`;
+            document.getElementById('modal-body').innerHTML = buildForm(schema, row);
+            document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="submitEdit(${row.id})">Save Changes</button>
+  `;
+            openModal();
+        }
+
+        function openDispatchModal() {
+            const jobs = ['primes', 'matrix', 'hash', 'fibonacci', 'sort'];
+            document.getElementById('modal-title').textContent = 'Dispatch Background Job';
+            document.getElementById('modal-body').innerHTML = `
+    <div class="mb-4">
+      <label class="block text-xs text-slate-400 mb-1">Job Type</label>
+      <select id="job-type-sel" class="w-full">
+        ${jobs.map(j => `<option value="${j}">${j}</option>`).join('')}
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs text-slate-400 mb-1">Payload (JSON, optional)</label>
+      <textarea id="job-payload" rows="3" placeholder='{"key":"value"}'></textarea>
+    </div>
+    <p class="text-xs text-slate-500 mt-3">Run <code class="font-mono text-violet-400">php bin/worker.php</code> to process.</p>
+  `;
+            document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="submitDispatch()">⚡ Dispatch</button>
+  `;
+            openModal();
+        }
+
+        function buildForm(schema, row) {
+            const formFields = schema.fields.filter(f => f.form && !f.readonly);
+            return formFields.map(f => {
+                const val = row?.[f.name] ?? '';
+                return `
+      <div class="mb-4">
+        <label class="block text-xs text-slate-400 mb-1">${f.label}${f.required ? ' <span class="text-red-400">*</span>' : ''}</label>
+        ${buildInput(f, val)}
+      </div>
+    `;
+            }).join('');
+        }
+
+        function buildInput(f, val) {
+            const id = `field-${f.name}`;
+            switch (f.type) {
+                case 'text': return `<textarea id="${id}" name="${f.name}" rows="3">${esc(String(val))}</textarea>`;
+                case 'int': return `<input id="${id}" name="${f.name}" type="number" min="${f.min ?? ''}" max="${f.max ?? ''}" value="${val}" ${f.required ? 'required' : ''} />`;
+                case 'float': return `<input id="${id}" name="${f.name}" type="number" step="0.01" value="${val}" />`;
+                case 'bool': return `<input id="${id}" name="${f.name}" type="checkbox" ${val ? 'checked' : ''} />`;
+                case 'datetime': return `<input id="${id}" name="${f.name}" type="datetime-local" value="${val ? toLocalDt(val) : ''}" />`;
+                case 'enum': return `<select id="${id}" name="${f.name}">${(f.options || []).map(o => `<option value="${o}" ${val === o ? 'selected' : ''}>${o}</option>`).join('')}</select>`;
+                default: return `<input id="${id}" name="${f.name}" type="text" value="${esc(String(val))}" maxlength="${f.maxLength || 255}" ${f.required ? 'required' : ''} />`;
+            }
+        }
+
+        function collectForm(schema) {
+            const formFields = schema.fields.filter(f => f.form && !f.readonly);
+            const out = {};
+            for (const f of formFields) {
+                const el = document.getElementById(`field-${f.name}`);
+                if (!el) continue;
+                if (f.type === 'bool') out[f.name] = el.checked;
+                else if (f.type === 'int') out[f.name] = parseInt(el.value) || 0;
+                else if (f.type === 'float') out[f.name] = parseFloat(el.value) || 0;
+                else out[f.name] = el.value;
+            }
+            return out;
+        }
+
+        async function submitCreate() {
+            const schema = SCHEMAS[currentResource];
+            const body = collectForm(schema);
+            const { ok, data } = await api('POST', schema.api, body);
+            if (ok) { toast('Created!'); closeModal(); await loadResourceData(currentResource); }
+            else toast(data?.error || 'Error', 'error');
+        }
+
+        async function submitEdit(id) {
+            const schema = SCHEMAS[currentResource];
+            const body = collectForm(schema);
+            const { ok, data } = await api('PUT', `${schema.api}/${id}`, body);
+            if (ok) { toast('Updated!'); closeModal(); await loadResourceData(currentResource); }
+            else toast(data?.error || 'Error', 'error');
+        }
+
+        async function submitDispatch() {
+            const name = document.getElementById('job-type-sel')?.value;
+            let payload = {};
+            try { payload = JSON.parse(document.getElementById('job-payload')?.value || '{}'); } catch { }
+            const { ok, data } = await api('POST', '/jobs/dispatch', { job: name, payload });
+            if (ok) { toast(data?.message || 'Job dispatched!'); closeModal(); await loadResourceData('jobs'); }
+            else toast(data?.error || 'Error', 'error');
+        }
+
+        function openModal() { document.getElementById('modal-bg').classList.add('open'); }
+        function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
+        document.getElementById('modal-bg').addEventListener('click', e => {
+            if (e.target === e.currentTarget) closeModal();
+        });
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // Benchmark
+        // ─────────────────────────────────────────────────────────────────────────────
+        async function renderBenchmark() {
+            setTitle('Benchmark', 'PHP async/parallel performance comparison');
+            const { data: info } = await api('GET', '/benchmark/info');
+
+            document.getElementById('page-content').innerHTML = `
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      ${[
+                    { k: 'PHP Version', v: info?.php_version || '?' },
+                    { k: 'SAPI', v: info?.sapi || '?' },
+                    { k: 'OS', v: info?.os || '?' },
+                    { k: 'Boot', v: (info?.framework_boot_ms || 0) + 'ms' },
+                ].map(i => `<div class="stat-card"><p class="text-xs text-slate-500">${i.k}</p><p class="font-mono font-bold text-violet-300 mt-1">${i.v}</p></div>`).join('')}
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      ${['sync', 'async', 'parallel'].map(m => `
+        <div class="glass rounded-xl p-5">
+          <h3 class="font-semibold text-slate-200 mb-1">${m.charAt(0).toUpperCase() + m.slice(1)}</h3>
+          <p class="text-xs text-slate-500 mb-4">${m === 'sync' ? 'Sequential jobs' : 'Fiber / subprocess'}</p>
+          <div id="bench-${m}-result" class="text-xs text-slate-600 mb-4">Click Run to test</div>
+          <button class="btn btn-primary w-full" onclick="runBench('${m}')">▶ Run ${m}</button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+        }
+
+        async function runBench(mode) {
+            const el = document.getElementById(`bench-${mode}-result`);
+            el.innerHTML = '<span class="spin inline-block w-3 h-3 rounded-full border border-violet-400 border-t-transparent"></span> Running…';
+            const { ok, data } = await api('POST', `/benchmark/${mode}`);
+            if (!ok) { el.innerHTML = `<span class="text-red-400">${data?.error || 'Error'}</span>`; return; }
+            el.innerHTML = `
+    <div class="space-y-1">
+      <div class="flex justify-between"><span>Wall time</span><span class="font-mono text-violet-300">${data.wall_time_ms}ms</span></div>
+      ${data.max_job_ms ? `<div class="flex justify-between"><span>Max job</span><span class="font-mono text-blue-300">${data.max_job_ms}ms</span></div>` : ''}
+      ${(data.jobs || []).map(j => `<div class="flex justify-between text-slate-500"><span class="font-mono">${j.name}</span><span>${j.elapsed_ms}ms</span></div>`).join('')}
+    </div>
+  `;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // Security Dashboard
+        // ─────────────────────────────────────────────────────────────────────────────
+        async function renderSecurity() {
+            setTitle('Security', 'Threat events and system health');
+            document.getElementById('page-content').innerHTML = `
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="glass rounded-xl p-5">
+        <h3 class="font-semibold text-slate-200 mb-3">🛡️ Security Features Active</h3>
+        <div class="space-y-2">
+          ${[
+                    ['Rate Limiter', '180 req/min per IP (SQLite, sliding window)'],
+                    ['Anomaly Detector', 'Auto-block after 20 errors/min (10 min)'],
+                    ['Scanner Detection', 'Auto-block after 15 consecutive 404s'],
+                    ['IP Filter', 'Blocklist + allowlist (IPv4/IPv6 + CIDR)'],
+                    ['Input Sanitizer', 'XSS strip, SQLi, XXE, path traversal, null bytes'],
+                    ['SSRF Guard', 'Private RFC-1918 + cloud metadata IP blocks'],
+                    ['Security Headers', 'CSP, HSTS, X-Frame-Options, and more'],
+                    ['System Overload', '503 when load > 80% of CPU cores'],
+                ].map(([name, desc]) => `
+            <div class="flex items-start gap-3 py-2 border-b border-slate-800">
+              <span class="text-green-400 mt-0.5">✓</span>
+              <div>
+                <div class="text-sm font-medium text-slate-300">${name}</div>
+                <div class="text-xs text-slate-500">${desc}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="glass rounded-xl p-5">
+        <h3 class="font-semibold text-slate-200 mb-3">📝 Threat Log Types</h3>
+        <div class="space-y-2">
+          ${[
+                    ['rate_limit', 'yellow', 'Too Many Requests — IP exceeded quota'],
+                    ['ip_blocked', 'red', 'IP Blocked — matched blocklist'],
+                    ['sqli', 'red', 'SQL Injection pattern detected'],
+                    ['xss', 'orange', 'XSS pattern stripped'],
+                    ['xxe', 'red', 'XML External Entity attempt'],
+                    ['ssrf', 'red', 'SSRF — private IP in URL field'],
+                    ['anomaly', 'orange', 'Behavioral anomaly auto-block'],
+                    ['overload', 'blue', 'System overload guard triggered'],
+                ].map(([type, color, desc]) => `
+            <div class="flex items-center gap-3 py-1.5 border-b border-slate-800">
+              <span class="badge badge-${color} w-28">${type}</span>
+              <span class="text-xs text-slate-500">${desc}</span>
+            </div>
+          `).join('')}
+        </div>
+        <p class="text-xs text-slate-600 mt-4 font-mono">→ storage/logs/threats.log (JSON lines)</p>
+      </div>
+    </div>
+  `;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // Utilities
+        // ─────────────────────────────────────────────────────────────────────────────
+        function esc(s) { return s?.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') || ''; }
+
+        function badgeClass(status) {
+            return { pending: 'yellow', in_progress: 'blue', processing: 'blue', done: 'green', completed: 'green', failed: 'red', cancelled: 'gray' }[status] || 'gray';
+        }
+
+        function toLocalDt(iso) {
+            if (!iso) return '';
+            try { return new Date(iso).toISOString().slice(0, 16); } catch { return ''; }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // Init
+        // ─────────────────────────────────────────────────────────────────────────────
+        boot();
+    </script>
+</body>
+
+</html>
