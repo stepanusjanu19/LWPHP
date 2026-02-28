@@ -21,6 +21,12 @@ class {{ className }}Controller extends Controller
         return $this->render('{{ resourceNameLower }}s/index', ['items' => $items]);
     }
 
+    public function feed(Request $request, array $args): Response
+    {
+        $items = $this->service->getAll(); 
+        return $this->render('{{ resourceNameLower }}s/feed', ['items' => $items]);
+    }
+
     public function create(Request $request, array $args): Response
     {
         return $this->render('{{ resourceNameLower }}s/form');

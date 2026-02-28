@@ -7,6 +7,8 @@ use Kei\Lwphp\Domain\Task\TaskDTO;
 use Kei\Lwphp\Service\TaskService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Kei\Lwphp\Core\View;
+use Nyholm\Psr7\Response;
 
 /**
  * TaskController — HTTP adapter for Task CRUD + lifecycle.
@@ -37,6 +39,14 @@ class TaskController extends BaseController
             $page,
             $limit
         );
+
+        if (str_contains($request->getHeaderLine('Accept'), 'text/html')) {
+            return $this->render('cms/tasks', [
+                'items' => $page['data'],
+                'pagination' => ['total' => $page['total'], 'page' => $page['page'], 'pages' => $page['pages']],
+                'stats' => $this->taskService->stats()
+            ]);
+        }
 
         return $this->json(200, array_merge($page, ['stats' => $this->taskService->stats()]));
     }

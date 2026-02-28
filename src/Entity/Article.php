@@ -9,8 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Kei\Lwphp\Base\Entity;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'posts')]
-class Post extends Entity
+#[ORM\Table(name: 'articles')]
+class Article extends Entity
 {
     #[ORM\Column(type: 'string', length: 255)]
     private string $title;

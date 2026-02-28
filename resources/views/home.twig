@@ -63,17 +63,22 @@
 </section>
 
 <div class="features">
+    {% for feature in features %}
     <div class="glass-card feature-card">
-        <h3>Fast Core</h3>
-        <p>Built with efficiency in mind. Minimal overhead and optimized DI container for sub-millisecond resolutions.</p>
+        <h3>
+            {% if feature.icon %}
+            <span style="margin-right: 0.5rem;">{{ feature.icon|raw }}</span>
+            {% endif %}
+            {{ feature.title }}
+        </h3>
+        <p>{{ feature.description }}</p>
     </div>
+    {% else %}
     <div class="glass-card feature-card">
-        <h3>Livewire + HTMX</h3>
-        <p>Fully reactive components without writing a single line of complex JavaScript. Stay in PHP/Twig.</p>
+        <h3>Deploy the Generator</h3>
+        <p>No features added yet. Log into the CMS Dashboard to run the RPC Gateway and scaffold components!</p>
     </div>
-    <div class="glass-card feature-card">
-        <h3>Secure by Design</h3>
-        <p>Advanced signature-based authentication and CSRF protection built into the core.</p>
-    </div>
+    {% endfor %}
 </div>
+
 {% endblock %}

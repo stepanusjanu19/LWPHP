@@ -42,7 +42,6 @@ return [
     // ------------------------------------------------------------------
   ConfigLoader::class => \DI\factory(function (): ConfigLoader {
     $loader = new ConfigLoader();
-    $loader->load(base_path('config/app.yaml'));
     return $loader;
   }),
 
@@ -136,14 +135,12 @@ return [
     // ------------------------------------------------------------------
     // Controller layer
     // ------------------------------------------------------------------
-  TaskController::class => \DI\create(TaskController::class)
-    ->constructor(\DI\get(TaskService::class)),
+  TaskController::class => \DI\autowire(TaskController::class),
 
   BenchmarkController::class => \DI\create(BenchmarkController::class)
     ->constructor(\DI\get(HeavyJobService::class), \DI\get(JobDispatcher::class)),
 
-  JobController::class => \DI\create(JobController::class)
-    ->constructor(\DI\get(JobQueue::class), \DI\get(JobRepository::class)),
+  JobController::class => \DI\autowire(JobController::class),
 
   SchemaController::class => \DI\create(SchemaController::class)
     ->constructor(\DI\get(JobRepository::class)),
@@ -249,6 +246,16 @@ return [
 
   \Kei\Lwphp\Controller\CmsController::class => \DI\autowire(\Kei\Lwphp\Controller\CmsController::class),
 
+  \Kei\Lwphp\Controller\DocsController::class => \DI\autowire(\Kei\Lwphp\Controller\DocsController::class),
+
   \Kei\Lwphp\Controller\CategoryController::class => \DI\autowire(\Kei\Lwphp\Controller\CategoryController::class),
+
+  \Kei\Lwphp\Service\ArticleService::class => \DI\autowire(\Kei\Lwphp\Service\ArticleService::class),
+
+  \Kei\Lwphp\Controller\ArticleController::class => \DI\autowire(\Kei\Lwphp\Controller\ArticleController::class),
+
+  \Kei\Lwphp\Service\LandingFeatureService::class => \DI\autowire(\Kei\Lwphp\Service\LandingFeatureService::class),
+
+  \Kei\Lwphp\Controller\LandingFeatureController::class => \DI\autowire(\Kei\Lwphp\Controller\LandingFeatureController::class),
 
 ];

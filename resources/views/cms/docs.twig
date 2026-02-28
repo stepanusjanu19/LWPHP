@@ -1,0 +1,137 @@
+{% extends 'layout/base.twig' %}
+
+{% block title %}Documentation | LWPHP CMS{% endblock %}
+
+{% block extra_css %}
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.sidebar {
+    height: fit-content;
+}
+
+.sidebar-nav {
+    list-style: none;
+}
+
+.sidebar-nav li {
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-nav a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.sidebar-nav a:hover, .sidebar-nav a.active {
+    background: rgba(79, 70, 229, 0.1);
+    color: var(--primary);
+}
+
+.docs-content h1, .docs-content h2, .docs-content h3 {
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-main);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+.docs-content h1 { font-size: 2.2rem; margin-top: 0; }
+.docs-content h2 { font-size: 1.6rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; }
+.docs-content p { color: var(--text-muted); margin-bottom: 1.5rem; }
+.docs-content code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: 'Courier New', Courier, monospace;
+}
+.docs-content pre {
+    background: #000;
+    color: #10b981;
+    padding: 1.5rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--glass-border);
+}
+.docs-content ul {
+    margin-left: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-muted);
+}
+.docs-content li {
+    margin-bottom: 0.5rem;
+}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <aside class="sidebar glass-card">
+        <ul class="sidebar-nav">
+            <li><a href="#quick-start">Quick Start</a></li>
+            <li><a href="#routing">Routing</a></li>
+            <li><a href="#controllers">Controllers</a></li>
+            <li><a href="#views">Views (Twig)</a></li>
+            <li><a href="#database">Database & ORM</a></li>
+            <li><a href="#cli-tool">CLI Tool</a></li>
+            <li><a href="#rpc">Payload RPC</a></li>
+        </ul>
+    </aside>
+
+    <div class="main-content">
+        <div class="glass-card docs-content">
+            <h1>LWPHP Framework Documentation</h1>
+            <p>Welcome to the official documentation for the LWPHP Lightweight Framework. Built for speed, elegance, and rapid scaffolding.</p>
+
+            <h2 id="quick-start">Quick Start</h2>
+            <p>Start the development server using the built-in PHP command:</p>
+            <pre><code>php -S localhost:8000 -t public</code></pre>
+            <p>Make sure your <code>.env</code> is configured correctly, especially the database connection variables.</p>
+
+            <h2 id="routing">Routing</h2>
+            <p>Routes are defined in <code>src/Routing/routes.php</code>. Under the hood, we use <code>nikic/fast-route</code> for extremely fast URL matching.</p>
+            <pre><code>$r->get('/example', [\Kei\Lwphp\Controller\ExampleController::class, 'index']);</code></pre>
+
+            <h2 id="controllers">Controllers</h2>
+            <p>Controllers implement PSR-7 standards using Nyholm PSR-7. They must return a <code>ResponseInterface</code> object.</p>
+            <pre><code>public function index(ServerRequestInterface $request): ResponseInterface
+{
+    return new Response(200, [], "Hello World");
+}</code></pre>
+
+            <h2 id="views">Views (Twig)</h2>
+            <p>We use Twig for powerful templating. To render a view in a controller:</p>
+            <pre><code>$html = $this->view->render('cms/dashboard', ['name' => 'Admin']);
+return new Response(200, ['Content-Type' => 'text/html'], $html);</code></pre>
+
+            <h2 id="database">Database & ORM</h2>
+            <p>We leverage Doctrine ORM and DBAL. Configurations are securely managed in <code>config/database.php</code> and dependency injected globally.</p>
+
+            <h2 id="cli-tool">CLI Tool</h2>
+            <p>LWPHP includes a powerful command-line interface under <code>bin/lwphp</code> (or simply <code>php lwphp</code> from the root directory) to help streamline your workflow.</p>
+            <ul>
+                <li><code>php lwphp make:crud {EntityName}</code>: Scaffolds a complete module (Entity, Repository, Service, Controller, and Views) and auto-wires the routes and dependencies.</li>
+                <li><code>php lwphp db:migrate</code>: Synchronizes your Doctrine Entities with the actual database schema.</li>
+                <li><code>php lwphp db:seed:admin</code>: Seeds the database with a default administrator account.</li>
+                <li><code>php lwphp cache:clear</code>: Clears the compiled DI container cache.</li>
+            </ul>
+
+            <h2 id="rpc">Payload RPC</h2>
+            <p>LWPHP provides a powerful <code>/rpc</code> Gateway. The CMS CRUD Generator uses this to request commands entirely through JSON Payloads over POST, completely bypassing the need for separate REST endpoints for system-level executions.</p>
+            <pre><code>{
+    "jsonrpc": "2.0",
+    "service": "GeneratorService",
+    "method": "generateCrud",
+    "params": ["ExampleName"]
+}</code></pre>
+        </div>
+    </div>
+</div>
+{% endblock %}

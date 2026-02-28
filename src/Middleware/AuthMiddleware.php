@@ -29,8 +29,8 @@ class AuthMiddleware implements MiddlewareInterface
     {
         $path = $request->getUri()->getPath();
 
-        // Skip auth for login/logout and home
-        if ($path === '/' || str_starts_with($path, '/login') || str_starts_with($path, '/logout')) {
+        // Skip auth for login/logout/register/forgot-password and home
+        if ($path === '/' || str_starts_with($path, '/login') || str_starts_with($path, '/logout') || str_starts_with($path, '/register') || str_starts_with($path, '/forgot-password')) {
             return $handler->handle($request);
         }
 
@@ -50,19 +50,6 @@ class AuthMiddleware implements MiddlewareInterface
             session_start();
         }
 
-        // Generate and ensure basic session security variables exist for test/dev
-        if (empty($_SESSION['auth_key'])) {
-            // Automatically assign admin for dev if no session exists but accessing protected
-            $_SESSION['auth_key'] = bin2hex(random_bytes(16));
-            $_SESSION['user_id'] = 1;
-            $_SESSION['username'] = 'admin_dev';
-            $_SESSION['role'] = 'admin';
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-
-            $ip = $request->getServerParams()['REMOTE_ADDR'] ?? '0.0.0.0';
-            $userAgent = $request->getHeaderLine('User-Agent');
-            $_SESSION['auth_signature'] = hash('sha256', $_SESSION['auth_key'] . $ip . $userAgent);
-        }
 
         if (empty($_SESSION['user_id'])) {
             return $this->unauthorized($request, 'Unauthenticated');

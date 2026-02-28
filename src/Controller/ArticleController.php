@@ -6,14 +6,14 @@
 namespace Kei\Lwphp\Controller;
 
 use Kei\Lwphp\Base\Controller;
-use Kei\Lwphp\Service\PostService;
+use Kei\Lwphp\Service\ArticleService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class PostController extends Controller
+class ArticleController extends Controller
 {
     public function __construct(
-        private readonly PostService $service
+        private readonly ArticleService $service
     ) {
         parent::__construct();
     }
@@ -21,18 +21,12 @@ class PostController extends Controller
     public function index(Request $request, array $args): Response
     {
         $items = $this->service->getAll(); 
-        return $this->render('posts/index', ['items' => $items]);
-    }
-
-    public function feed(Request $request, array $args): Response
-    {
-        $items = $this->service->getAll(); 
-        return $this->render('posts/feed', ['items' => $items]);
+        return $this->render('articles/index', ['items' => $items]);
     }
 
     public function create(Request $request, array $args): Response
     {
-        return $this->render('posts/form');
+        return $this->render('articles/form');
     }
 
     public function edit(Request $request, array $args): Response
@@ -41,10 +35,10 @@ class PostController extends Controller
         $item = $this->service->getById($id);
 
         if (!$item) {
-            return $this->notFound('Post', $id);
+            return $this->notFound('Article', $id);
         }
 
-        return $this->render('posts/form', ['item' => $item]);
+        return $this->render('articles/form', ['item' => $item]);
     }
 
     public function store(Request $request, array $args): Response

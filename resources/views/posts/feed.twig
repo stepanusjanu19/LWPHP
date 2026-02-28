@@ -1,0 +1,125 @@
+{# phpcs:disable #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post Feed</title>
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#6366f1',
+                        surface: '#1e1e24',
+                        background: '#0f0f13',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: theme('colors.background'); color: #e2e8f0; }
+        .glass-card {
+            background: rgba(30, 30, 36, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, theme('colors.primary') 0%, #818cf8 100%);
+            transition: opacity 0.2s;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+    </style>
+</head>
+<body class="min-h-screen">
+    
+    <!-- Header / Hero Section -->
+    <header class="relative overflow-hidden border-b border-gray-800">
+        <div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-500/10 mix-blend-overlay"></div>
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-primary/20 rounded-full blur-3xl"></div>
+        
+        <div class="relative max-w-6xl mx-auto px-6 py-16 flex flex-col items-center text-center">
+            <span class="text-primary font-bold tracking-wider uppercase text-sm mb-2">Discover</span>
+            <h1 class="font-display text-5xl font-bold text-white mb-4">Latest Posts</h1>
+            <p class="text-gray-400 max-w-xl mx-auto mb-8">
+                Explore the newest dynamic content seamlessly streamed to you.
+            </p>
+            
+            <button hx-get="/posts/create" hx-target="#form-modal" class="btn-primary text-white font-medium px-6 py-3 rounded-full flex items-center gap-2 shadow-lg shadow-primary/25">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Publish New Post
+            </button>
+        </div>
+    </header>
+
+    <!-- Content Feed -->
+    <main class="max-w-6xl mx-auto px-6 py-16">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="post-list">
+            {% for item in items %}
+            <article class="glass-card flex flex-col overflow-hidden group" id="item-{{ item.id }}">
+                <!-- Faux Cover Image -->
+                <div class="h-48 w-full bg-gray-800 relative overflow-hidden">
+                    <img src="https://source.unsplash.com/random/600x400?sig={{ item.id }}&Post" alt="Cover" class="object-cover w-full h-full opacity-80 group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute top-4 left-4">
+                        <span class="bg-black/60 backdrop-blur-md text-white px-3 py-1 text-xs font-semibold rounded-full border border-white/10">ID: {{ item.id }}</span>
+                    </div>
+                </div>
+                
+                <div class="p-6 flex flex-col flex-grow">
+                    <h3 class="font-display text-xl font-bold text-white mb-2 leading-tight">
+                        {{ item.title | default('Post #' ~ item.id) }}
+                    </h3>
+                    
+                    <p class="text-gray-400 text-sm mb-6 flex-grow line-clamp-3">
+                        {{ item.content | default('Dynamic Post content block. Add your fields here to display rich summaries of the data.') }}
+                    </p>
+                    
+                    <div class="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                        <div class="flex space-x-2">
+                            <button hx-get="/posts/{{ item.id }}/edit" hx-target="#form-modal" class="text-xs font-semibold text-primary hover:text-white transition-colors bg-primary/10 hover:bg-primary px-3 py-1.5 rounded-md">Edit</button>
+                            <button hx-delete="/posts/{{ item.id }}" hx-target="closest article" hx-swap="outerHTML swap:1s" class="text-xs font-semibold text-red-400 hover:text-white transition-colors bg-red-400/10 hover:bg-red-500 px-3 py-1.5 rounded-md">Remove</button>
+                        </div>
+                        <span class="text-gray-500 text-xs">Just now</span>
+                    </div>
+                </div>
+            </article>
+            {% else %}
+            <div class="col-span-full py-20 text-center">
+                <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-700">
+                    <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                </div>
+                <h3 class="text-xl font-display text-white mb-2">No Posts yet</h3>
+                <p class="text-gray-500">Get started by publishing your first piece of content.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+    
+    <!-- Global Footer -->
+    <footer class="border-t border-white/5 py-8 text-center text-sm text-gray-500 mt-12 block">
+        Powered by LWPHP CMS Framework.
+    </footer>
+    
+    <!-- Modal Target -->
+    <div id="form-modal" class="relative z-50"></div>
+    
+</body>
+</html>

@@ -112,7 +112,9 @@
             <a href="/" class="logo">LW<span>PHP</span></a>
             <ul class="nav-links">
                 <li><a href="/">Home</a></li>
+                {% if user %}
                 <li><a href="/admin">CMS Dashboard</a></li>
+                {% endif %}
                 <li><a href="/docs">Documentation</a></li>
             </ul>
             {% if user %}

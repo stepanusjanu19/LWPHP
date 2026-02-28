@@ -1,29 +1,121 @@
 {# phpcs:disable #}
-<div class="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50">
-    <div class="bg-gray-800 rounded-xl shadow-2xl border border-gray-700 w-full max-w-lg overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-700 flex justify-between items-center">
-            <h2 class="text-xl font-semibold text-white">{% if item %}Edit{% else %}Create{% endif %} {{ className }}</h2>
-            <button onclick="document.getElementById('form-modal').innerHTML=''" class="text-gray-400 hover:text-white">&times;</button>
+<style>
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+.modal-content {
+    background: var(--card-bg, rgba(23, 27, 34, 0.95));
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.1));
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    animation: modal-enter 0.3s ease-out;
+}
+@keyframes modal-enter {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--glass-border, rgba(255,255,255,0.1));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.modal-header h2 {
+    font-size: 1.25rem;
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-main, #fff);
+    margin: 0;
+}
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted, #9ca3af);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.modal-close:hover { color: var(--text-main, #fff); }
+.modal-body {
+    padding: 1.5rem;
+}
+.form-group {
+    margin-bottom: 1.25rem;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-muted, #9ca3af);
+}
+.form-input {
+    width: 100%;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.1));
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: var(--text-main, #fff);
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary, #4f46e5);
+}
+.modal-footer {
+    padding-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+.btn-cancel {
+    background: transparent;
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.1));
+    color: var(--text-muted, #9ca3af);
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+.btn-cancel:hover { background: rgba(255,255,255,0.05); color: var(--text-main, #fff); }
+</style>
+
+<div class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>{% if item|default(false) %}Edit{% else %}Create{% endif %} {{ className }}</h2>
+            <button onclick="document.getElementById('form-modal').innerHTML=''" class="modal-close">&times;</button>
         </div>
         
-        <form hx-{% if item %}put{% else %}post{% endif %}="/{{ resourceNameLower }}s{% if item %}/{{ item.id }}{% endif %}" 
+        <form hx-{% if item|default(false) %}put{% else %}post{% endif %}="/{{ resourceNameLower }}s{% if item|default(false) %}/{{ item.id }}{% endif %}" 
               hx-target="body" 
-              class="p-6 space-y-4">
+              class="modal-body">
             
-            {% if item %}
+            {% if item|default(false) %}
             <input type="hidden" name="id" value="{{ item.id }}">
             {% endif %}
 
-            <!-- Form Fields -->
-            <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Example Field</label>
-                <input type="text" name="example" value="{{ item.example ?? '' }}" 
-                       class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            <div class="form-group">
+                <label>Example Field</label>
+                <input type="text" name="example" value="{{ item.example|default('') }}" class="form-input">
             </div>
 
-            <div class="pt-4 flex justify-end space-x-3">
-                <button type="button" onclick="document.getElementById('form-modal').innerHTML=''" class="px-5 py-2 text-sm text-gray-300 hover:text-white font-medium">Cancel</button>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg font-medium shadow transition-colors">Save {{ className }}</button>
+            <div class="modal-footer">
+                <button type="button" onclick="document.getElementById('form-modal').innerHTML=''" class="btn-cancel">Cancel</button>
+                <button type="submit" class="btn">Save {{ className }}</button>
             </div>
         </form>
     </div>

@@ -7,6 +7,8 @@ use Kei\Lwphp\Repository\JobRepository;
 use Kei\Lwphp\Service\JobQueue;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Kei\Lwphp\Core\View;
+use Nyholm\Psr7\Response;
 
 /**
  * JobController — HTTP adapter for the background job queue.
@@ -24,8 +26,10 @@ class JobController extends BaseController
     public function __construct(
         private readonly JobQueue $queue,
         private readonly JobRepository $repo,
+        \Kei\Lwphp\Core\View $view,
     ) {
         parent::__construct();
+        $this->setView($view);
     }
 
     // POST /jobs/dispatch
@@ -66,6 +70,14 @@ class JobController extends BaseController
             $page,
             $limit
         );
+
+        if (str_contains($request->getHeaderLine('Accept'), 'text/html')) {
+            return $this->render('cms/jobs', [
+                'items' => $page['data'],
+                'pagination' => ['total' => $page['pagination']['total'], 'page' => $page['pagination']['page'], 'pages' => $page['pagination']['pages']],
+                'stats' => $this->queue->stats()
+            ]);
+        }
 
         return $this->json(200, array_merge($page, ['stats' => $this->queue->stats()]));
     }

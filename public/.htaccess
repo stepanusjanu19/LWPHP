@@ -1,0 +1,19 @@
+Options -Indexes
+RewriteEngine On
+
+# 1. Security Headers
+<IfModule mod_headers.c>
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-Content-Type-Options "nosniff"
+    Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+</IfModule>
+
+# 2. Domain Validation & Subpath Handling
+# RewriteCond %{HTTP_HOST} !^www\.yourdomain\.com$ [NC]
+# RewriteCond %{HTTP_HOST} !^localhost$ [NC]
+# RewriteRule ^(.*)$ https://www.yourdomain.com/$1 [L,R=301]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]

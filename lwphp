@@ -19,6 +19,7 @@ use Kei\Lwphp\Console\MakeCrudCommand;
 use Kei\Lwphp\Console\MakeLivewireCommand;
 use Kei\Lwphp\Console\MigrateCommand;
 use Kei\Lwphp\Console\ServeCommand;
+use Kei\Lwphp\Console\SeedAdminCommand;
 
 function base_path(string $path = ''): string
 {
@@ -43,6 +44,7 @@ $app->add(new MakeViewCommand());
 $app->add(new MakeCrudCommand());
 $app->add(new MakeLivewireCommand());
 $app->add($container->get(MigrateCommand::class));
+$app->add($container->get(SeedAdminCommand::class));
 $app->add(new ServeCommand());
 
 // 4. Run

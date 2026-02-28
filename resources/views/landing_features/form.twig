@@ -96,11 +96,11 @@
 <div class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>{% if item|default(false) %}Edit{% else %}Create{% endif %} Post</h2>
+            <h2>{% if item|default(false) %}Edit{% else %}Create{% endif %} LandingFeature</h2>
             <button onclick="document.getElementById('form-modal').innerHTML=''" class="modal-close">&times;</button>
         </div>
         
-        <form hx-{% if item|default(false) %}put{% else %}post{% endif %}="/posts{% if item|default(false) %}/{{ item.id }}{% endif %}" 
+        <form hx-{% if item|default(false) %}put{% else %}post{% endif %}="/landing_features{% if item|default(false) %}/{{ item.id }}{% endif %}" 
               hx-target="body" 
               class="modal-body">
             
@@ -116,13 +116,18 @@
             </div>
             
             <div class="form-group">
-                <label>Content</label>
-                <textarea name="content" class="form-input" rows="6" required>{{ item.content|default('') }}</textarea>
+                <label>Description</label>
+                <textarea name="description" class="form-input" rows="3" required>{{ item.description|default('') }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Icon (SVG Code)</label>
+                <input type="text" name="icon" value="{{ item.icon|default('') }}" class="form-input" required>
             </div>
 
             <div class="modal-footer">
                 <button type="button" onclick="document.getElementById('form-modal').innerHTML=''" class="btn-cancel">Cancel</button>
-                <button type="submit" class="btn">Save Post</button>
+                <button type="submit" class="btn">Save LandingFeature</button>
             </div>
         </form>
     </div>

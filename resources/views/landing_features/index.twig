@@ -1,14 +1,14 @@
 {% extends 'layout/base.twig' %}
 
-{% block title %}{{ className }} Management{% endblock %}
+{% block title %}LandingFeature Management{% endblock %}
 
 {% block content %}
 <div class="glass-card" style="margin-top: 2rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-        <h2 style="font-family: 'Outfit', sans-serif;">{{ className }} Management</h2>
+        <h2 style="font-family: 'Outfit', sans-serif;">LandingFeature Management</h2>
         <div>
-            <a href="/{{ resourceNameLower }}s/feed" class="btn" style="background: var(--accent); margin-right: 1rem;" target="_blank">View Public Feed</a>
-            <button hx-get="/{{ resourceNameLower }}s/create" hx-target="#form-modal" class="btn" style="border: none; cursor: pointer; font-family: inherit; font-size: 0.9rem;">Add New {{ className }}</button>
+            <a href="/landing_features/feed" class="btn" style="background: var(--accent); margin-right: 1rem;" target="_blank">View Public Feed</a>
+            <button hx-get="/landing_features/create" hx-target="#form-modal" class="btn" style="border: none; cursor: pointer; font-family: inherit; font-size: 0.9rem;">Add New LandingFeature</button>
         </div>
     </div>
 
@@ -20,14 +20,14 @@
                 <th style="padding: 1rem;">Actions</th>
             </tr>
         </thead>
-        <tbody id="{{ resourceNameLower }}-table">
+        <tbody id="landing_feature-table">
             {% for item in items %}
             <tr style="border-bottom: 1px solid var(--glass-border);">
                 <td style="padding: 1rem; color: var(--text-muted);">{{ item.id }}</td>
-                <td style="padding: 1rem;">{{ item.title | default(item.name) | default('Item #' ~ item.id) }}</td>
+                <td style="padding: 1rem;">{{ item.title | default('Item #' ~ item.id) }}</td>
                 <td style="padding: 1rem;">
-                    <button hx-get="/{{ resourceNameLower }}s/{{ item.id }}/edit" hx-target="#form-modal" style="color: var(--primary); margin-right: 1rem; background: none; border: none; cursor: pointer; font-size: 1rem;">Edit</button>
-                    <button hx-delete="/{{ resourceNameLower }}s/{{ item.id }}" hx-target="closest tr" style="color: #ef4444; background: none; border: none; cursor: pointer;">Delete</button>
+                    <button hx-get="/landing_features/{{ item.id }}/edit" hx-target="#form-modal" style="color: var(--primary); margin-right: 1rem; background: none; border: none; cursor: pointer; font-size: 1rem;">Edit</button>
+                    <button hx-delete="/landing_features/{{ item.id }}" hx-target="closest tr" style="color: #ef4444; background: none; border: none; cursor: pointer;">Delete</button>
                 </td>
             </tr>
             {% else %}

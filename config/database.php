@@ -45,21 +45,21 @@ return [
         'mysql' => [
             'driver' => 'pdo_mysql',
             'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => (int) env('DB_PORT', 3306),
+            'port' => (int)env('DB_PORT', 3306),
             'dbname' => env('DB_DATABASE', 'lwphp'),
             'user' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8mb4',
-            'driverOptions' => [
+            'driverOptions' => defined('PDO::MYSQL_ATTR_INIT_COMMAND') ? [
                 \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'",
-            ],
+            ] : [],
         ],
 
         /* ── PostgreSQL ── */
         'pgsql' => [
             'driver' => 'pdo_pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => (int) env('DB_PORT', 5432),
+            'port' => (int)env('DB_PORT', 5432),
             'dbname' => env('DB_DATABASE', 'lwphp'),
             'user' => env('DB_USERNAME', 'postgres'),
             'password' => env('DB_PASSWORD', ''),
@@ -70,7 +70,7 @@ return [
         'sqlserver' => [
             'driver' => 'pdo_sqlsrv',
             'host' => env('DB_HOST', 'localhost'),
-            'port' => (int) env('DB_PORT', 1433),
+            'port' => (int)env('DB_PORT', 1433),
             'dbname' => env('DB_DATABASE', 'lwphp'),
             'user' => env('DB_USERNAME', 'sa'),
             'password' => env('DB_PASSWORD', ''),
