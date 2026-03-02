@@ -1,6 +1,6 @@
 # LWPHP
 Lightweight FW for use Reliable and Eficiency PHP Languange
 
-![alt text](image.png)
+![alt text](public/assets/img/landing.png)
 
-![alt text](image-1.png)
+![alt text](public/assets/img/dashboard.png)
