@@ -1,0 +1,50 @@
+{% extends 'layout/base.twig' %}
+
+{% block title %}System Info | LWPHP CMS{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <aside class="sidebar glass-card">
+        <div class="user-profile">
+            <div class="avatar">{{ username|default('A')|slice(0,1)|upper }}</div>
+            <div>
+                <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Admin Provider</p>
+                <p style="font-weight: 600; font-family: 'Outfit', sans-serif; font-size: 1.1rem; line-height: 1.2;">{{ username|default('admin') }}</p>
+            </div>
+        </div>
+        {% include 'partials/sidebar.twig' with {'active_page': 'system_info'} %}
+    </aside>
+
+    <div class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.2rem;">System Information</h1>
+        </div>
+
+        <div class="glass-card">
+            <h3 style="margin-bottom: 1.5rem; color: var(--primary-light);">Server Environment</h3>
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <tr style="border-bottom: 1px solid var(--glass-border);">
+                    <th style="padding: 1rem; color: var(--text-muted); width: 30%;">PHP Version</th>
+                    <td style="padding: 1rem;">{{ php_version }}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--glass-border);">
+                    <th style="padding: 1rem; color: var(--text-muted);">OS architecture</th>
+                    <td style="padding: 1rem;">{{ os }}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--glass-border);">
+                    <th style="padding: 1rem; color: var(--text-muted);">Server Software</th>
+                    <td style="padding: 1rem;">{{ server_software }}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--glass-border);">
+                    <th style="padding: 1rem; color: var(--text-muted);">Memory Limit</th>
+                    <td style="padding: 1rem;">{{ memory_limit }}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--glass-border);">
+                    <th style="padding: 1rem; color: var(--text-muted);">Max Execution Time</th>
+                    <td style="padding: 1rem;">{{ max_execution_time }}s</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

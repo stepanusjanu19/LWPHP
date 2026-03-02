@@ -1,0 +1,45 @@
+<?php
+
+namespace Kei\Lwphp\Database\Factories;
+
+class {{ className }}Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        // Add your factory definition here.
+        // Use a library like Faker if installed: $faker = \Faker\Factory::create();
+        return [
+            // 'title' => 'Sample Title',
+        ];
+    }
+    
+    /**
+     * Create a single entity instance with the defined state.
+     */
+    public function make(array $attributes = []) // : \Kei\Lwphp\Entity\{{ className }}
+    {
+        $data = array_merge($this->definition(), $attributes);
+        $className = "\\Kei\\Lwphp\\Entity\\{{ className }}";
+        
+        if (!class_exists($className)) {
+            throw new \RuntimeException("Entity class $className does not exist.");
+        }
+        
+        $entity = new $className();
+        
+        // Map data array to entity setters
+        foreach ($data as $key => $value) {
+            $setter = 'set' . str_replace('_', '', ucwords($key, '_'));
+            if (method_exists($entity, $setter)) {
+                $entity->$setter($value);
+            }
+        }
+        
+        return $entity;
+    }
+}

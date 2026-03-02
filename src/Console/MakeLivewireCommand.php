@@ -121,6 +121,36 @@ HTML;
             $output->writeln("<comment>Skipped View:</comment> Already exists.");
         }
 
+        $this->autoWireSidebar($name, $output);
+
         return self::SUCCESS;
+    }
+
+    private function autoWireSidebar(string $name, OutputInterface $output): void
+    {
+        $sidebarPath = base_path('resources/views/partials/sidebar.twig');
+        if (!file_exists($sidebarPath))
+            return;
+
+        $content = file_get_contents($sidebarPath);
+
+        // Ex: CounterComponent -> counter
+        $slug = $this->toSnakeCase(str_replace('Component', '', $name));
+        $label = $this->toPascalCase(str_replace('Component', '', $name)) . " (LW)";
+
+        if (str_contains($content, 'href="/' . $slug . '"')) {
+            return;
+        }
+
+        $link = <<<HTML
+            <li><a href="/{$slug}" class="{% if active_page == '{$slug}' %}active{% endif %}" style="padding: 0.6rem 1rem; font-size: 0.85rem;">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                {$label}
+            </a></li>
+HTML;
+        $content = str_replace('<!-- [LWPHP_SIDEBAR_INJECTION_POINT] -->', $link . "\n            <!-- [LWPHP_SIDEBAR_INJECTION_POINT] -->", $content);
+
+        file_put_contents($sidebarPath, $content);
+        $output->writeln("<info>Auto-wired:</info> Added {$label} to sidebar menu");
     }
 }

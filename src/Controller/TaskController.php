@@ -43,7 +43,7 @@ class TaskController extends BaseController
         if (str_contains($request->getHeaderLine('Accept'), 'text/html')) {
             return $this->render('cms/tasks', [
                 'items' => $page['data'],
-                'pagination' => ['total' => $page['total'], 'page' => $page['page'], 'pages' => $page['pages']],
+                'pagination' => ['total' => $page['pagination']['total'], 'page' => $page['pagination']['page'], 'pages' => $page['pagination']['pages']],
                 'stats' => $this->taskService->stats()
             ]);
         }

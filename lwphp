@@ -19,7 +19,10 @@ use Kei\Lwphp\Console\MakeCrudCommand;
 use Kei\Lwphp\Console\MakeLivewireCommand;
 use Kei\Lwphp\Console\MigrateCommand;
 use Kei\Lwphp\Console\ServeCommand;
-use Kei\Lwphp\Console\SeedAdminCommand;
+use Kei\Lwphp\Console\DbSeedCommand;
+use Kei\Lwphp\Console\KeyGenerateCommand;
+use Kei\Lwphp\Console\MakeSeedCommand;
+use Kei\Lwphp\Console\MakeFactoryCommand;
 
 function base_path(string $path = ''): string
 {
@@ -43,9 +46,12 @@ $app->add(new MakeControllerCommand());
 $app->add(new MakeViewCommand());
 $app->add(new MakeCrudCommand());
 $app->add(new MakeLivewireCommand());
+$app->add(new MakeSeedCommand());
+$app->add(new MakeFactoryCommand());
 $app->add($container->get(MigrateCommand::class));
-$app->add($container->get(SeedAdminCommand::class));
+$app->add($container->get(DbSeedCommand::class));
 $app->add(new ServeCommand());
+$app->add(new KeyGenerateCommand());
 
 // 4. Run
 $app->run();

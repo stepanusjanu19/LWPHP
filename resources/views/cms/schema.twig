@@ -1,0 +1,47 @@
+{% extends 'layout/base.twig' %}
+
+{% block title %}Schema Explorer | LWPHP CMS{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <aside class="sidebar glass-card">
+        <div class="user-profile">
+            <div class="avatar">{{ username|default('A')|slice(0,1)|upper }}</div>
+            <div>
+                <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Admin Provider</p>
+                <p style="font-weight: 600; font-family: 'Outfit', sans-serif; font-size: 1.1rem; line-height: 1.2;">{{ username|default('admin') }}</p>
+            </div>
+        </div>
+        {% include 'partials/sidebar.twig' with {'active_page': 'schema'} %}
+    </aside>
+
+    <div class="main-content">
+        <div class="glass-card">
+            <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 2rem;">Schema Explorer</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                {% for resource in resources %}
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1.5rem; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.background='rgba(99, 102, 241, 0.1)'; this.style.borderColor='var(--primary)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='var(--glass-border)'">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(99, 102, 241, 0.15); display: flex; align-items: center; justify-content: center; color: var(--primary-light);">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 24px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                        </div>
+                        <div>
+                            <h3 style="margin-bottom: 0; font-size: 1.2rem; color: var(--text-main);">{{ resource.label }}</h3>
+                            <span style="font-size: 0.85rem; color: var(--primary); font-family: monospace;">{{ resource.api }}</span>
+                        </div>
+                    </div>
+                    <div style="padding-left: 64px;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Resource identifier: <strong>{{ resource.name }}</strong></span>
+                    </div>
+                </div>
+                {% else %}
+                <div style="grid-column: 1 / -1; color: var(--text-muted); text-align: center; padding: 3rem;">
+                    No schemas registered in the system.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

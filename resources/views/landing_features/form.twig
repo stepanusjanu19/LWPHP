@@ -105,11 +105,10 @@
               class="modal-body">
             
             {% if item|default(false) %}
+            {% if item|default(false) %}
             <input type="hidden" name="id" value="{{ item.id }}">
             {% endif %}
             
-            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-
             <div class="form-group">
                 <label>Title</label>
                 <input type="text" name="title" value="{{ item.title|default('') }}" class="form-input" required>

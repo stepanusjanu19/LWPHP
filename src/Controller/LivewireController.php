@@ -6,10 +6,14 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Kei\Lwphp\Core\View;
 
+use Psr\Container\ContainerInterface;
+
 class LivewireController
 {
-    public function __construct(private View $view)
-    {
+    public function __construct(
+        private View $view,
+        private ContainerInterface $container
+    ) {
     }
 
     public function handle(ServerRequestInterface $request, array $vars): ResponseInterface
@@ -22,9 +26,9 @@ class LivewireController
             return $factory->createResponse(404)->withBody($factory->createStream('Component not found'));
         }
 
-        // 1. Instantiate Component
+        // 1. Instantiate Component via DI Container to support auto-wiring
         /** @var \Kei\Lwphp\Livewire\Component $component */
-        $component = new $className();
+        $component = $this->container->get($className);
 
         // 2. Hydrate State
         $payload = $request->getParsedBody() ?? [];
@@ -33,7 +37,12 @@ class LivewireController
         // 3. Optional: Call action (e.g., from an hx-post or custom header)
         $action = $request->getHeaderLine('HX-Trigger-Name'); // if the trigger element has a name attribute
         if ($action && method_exists($component, $action)) {
-            $component->$action();
+            $reflection = new \ReflectionMethod($component, $action);
+            if ($reflection->getNumberOfParameters() > 0) {
+                $component->$action($payload);
+            } else {
+                $component->$action();
+            }
         }
 
         // 4. Dehydrate State

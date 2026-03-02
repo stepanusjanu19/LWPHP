@@ -1,0 +1,61 @@
+{% extends 'layout/base.twig' %}
+
+{% block title %}Category Management{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <aside class="sidebar glass-card">
+        <div class="user-profile">
+            <div class="avatar">{{ username|default('A')|slice(0,1)|upper }}</div>
+            <div>
+                <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Admin Provider</p>
+                <p style="font-weight: 600; font-family: 'Outfit', sans-serif; font-size: 1.1rem; line-height: 1.2;">{{ username|default('admin') }}</p>
+            </div>
+        </div>
+        {% include 'partials/sidebar.twig' with {'active_page': 'categorys'} %}
+    </aside>
+
+    <div class="main-content">
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-family: 'Outfit', sans-serif;">Category Management</h2>
+                <div>
+                    <a href="/categorys/feed" class="btn" style="background: var(--accent); margin-right: 1rem;" target="_blank">View Public Feed</a>
+                    <button hx-get="/categorys/create" hx-target="#form-modal" class="btn" style="border: none; cursor: pointer; font-family: inherit; font-size: 0.9rem;">Add New Category</button>
+                </div>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--glass-border);">
+                        <th style="padding: 1rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em;">ID</th>
+                        <th style="padding: 1rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em;">Details</th>
+                        <th style="padding: 1rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="category-table">
+                    {% for item in items %}
+                    <tr style="border-bottom: 1px solid var(--glass-border);">
+                        <td style="padding: 1rem; color: var(--text-muted); font-family: monospace;">{{ item.id }}</td>
+                        <td style="padding: 1rem; font-weight: 500;">
+                            <div>{{ item.name }}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 400; margin-top: 0.25rem;">{{ item.description }}</div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <button hx-get="/categorys/{{ item.id }}/edit" hx-target="#form-modal" style="color: var(--primary); margin-right: 1rem; background: none; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600;">Edit</button>
+                            <button hx-delete="/categorys/{{ item.id }}" hx-target="closest tr" style="color: #ef4444; background: none; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600;">Delete</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" style="padding: 2rem; text-align: center; color: var(--text-muted);">No categories found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <!-- Modal Target -->
+            <div id="form-modal" class="relative z-50"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

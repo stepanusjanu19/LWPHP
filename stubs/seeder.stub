@@ -1,0 +1,22 @@
+<?php
+
+namespace Kei\Lwphp\Database\Seeders;
+
+use Doctrine\ORM\EntityManagerInterface;
+
+class {{ className }}Seeder implements SeederInterface
+{
+    public function __construct(
+        private readonly EntityManagerInterface $em
+    ) {}
+
+    public function run(): void
+    {
+        // Add your seeding logic here
+        // $entity = new \Kei\Lwphp\Entity\{{ className }}();
+        // $this->em->persist($entity);
+        // $this->em->flush();
+        
+        echo "=> Seeded {{ className }} table.\n";
+    }
+}

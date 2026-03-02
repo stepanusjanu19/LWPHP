@@ -69,6 +69,7 @@ class MiddlewareStack
         $stack->add($c->get(BandwidthMiddleware::class));
         // Security runs inside bandwidth so gzip is applied AFTER security checks
         $stack->add($c->get(SecurityMiddleware::class));
+        $stack->add($c->get(CsrfValidationMiddleware::class));
         // Auth covers protected dashboard/cms routes
         $stack->add($c->get(AuthMiddleware::class));
         return $stack;

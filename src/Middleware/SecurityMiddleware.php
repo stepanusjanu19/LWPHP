@@ -207,6 +207,7 @@ class SecurityMiddleware implements MiddlewareInterface
             ->withHeader('X-Content-Type-Options', 'nosniff')
             ->withHeader('X-Frame-Options', 'DENY')
             ->withHeader('X-XSS-Protection', '1; mode=block')
+            ->withHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
             ->withHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
             ->withHeader('Permissions-Policy', 'geolocation=(), camera=(), microphone=()')
             ->withHeader(

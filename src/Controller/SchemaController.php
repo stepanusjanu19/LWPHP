@@ -22,8 +22,10 @@ class SchemaController extends BaseController
 {
     public function __construct(
         private readonly JobRepository $jobRepo,
+        \Kei\Lwphp\Core\View $view
     ) {
         parent::__construct();
+        $this->setView($view);
     }
 
     // ── Schema registry ───────────────────────────────────────────────────────
@@ -97,6 +99,18 @@ class SchemaController extends BaseController
                 'icon' => $schema['icon'],
             ];
         }
+
+        if (str_contains($request->getHeaderLine('Accept'), 'text/html')) {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+            $html = $this->view->render('cms/schema', [
+                'resources' => $resources,
+                'username' => $_SESSION['username'] ?? 'Admin'
+            ]);
+            return new \Nyholm\Psr7\Response(200, ['Content-Type' => 'text/html'], $html);
+        }
+
         return $this->json(200, ['resources' => $resources]);
     }
 
