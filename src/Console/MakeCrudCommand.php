@@ -44,6 +44,8 @@ class MakeCrudCommand extends MakeCommand
 
         $this->autoWireDependencies($name, $output);
         $this->autoWireRoutes($name, $output);
+        $this->autoWireAuth($name, $output);
+        $this->autoWireSidebar($name, $output);
 
         $output->writeln("<info>Done!</info> Run <comment>php bin/lwphp db:migrate</comment> to sync the database.");
 
@@ -110,12 +112,61 @@ PHP;
         // Insert before Benchmark API or end of method
         if (str_contains($content, '// ── Benchmark API')) {
             $content = str_replace('// ── Benchmark API', ltrim($routes) . "\n\n        // ── Benchmark API", $content);
-        }
-        else {
+        } else {
             $content = str_replace("\n    }\n}", ltrim($routes) . "\n    }\n}", $content);
         }
 
         file_put_contents($routePath, $content);
         $output->writeln("<info>Auto-wired:</info> Added /{$slug} to src/Routing/routes.php");
+    }
+
+    private function autoWireAuth(string $name, OutputInterface $output): void
+    {
+        $authPath = base_path('src/Middleware/AuthMiddleware.php');
+        if (!file_exists($authPath))
+            return;
+
+        $content = file_get_contents($authPath);
+        $slug = $this->toSnakeCase($name) . 's';
+
+        if (str_contains($content, "'/{$slug}' =>")) {
+            return;
+        }
+
+        $injection = "        '/{$slug}' => [\n            'GET' => 'manager',\n            '*' => 'admin'\n        ],\n";
+        $content = str_replace(
+            "    ];\n\n    private array \$protectedPaths;",
+            $injection . "    ];\n\n    private array \$protectedPaths;",
+            $content
+        );
+
+        file_put_contents($authPath, $content);
+        $output->writeln("<info>Auto-wired:</info> Secured /{$slug} in AuthMiddleware");
+    }
+
+    private function autoWireSidebar(string $name, OutputInterface $output): void
+    {
+        $sidebarPath = base_path('resources/views/partials/sidebar.twig');
+        if (!file_exists($sidebarPath))
+            return;
+
+        $content = file_get_contents($sidebarPath);
+        $slug = $this->toSnakeCase($name) . 's';
+        $label = $this->toPascalCase($name) . 's';
+
+        if (str_contains($content, 'href="/' . $slug . '"')) {
+            return;
+        }
+
+        $link = <<<HTML
+            <li><a href="/{$slug}" class="{% if active_page == '{$slug}' %}active{% endif %}" style="padding: 0.6rem 1rem; font-size: 0.85rem;">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                {$label}
+            </a></li>
+HTML;
+        $content = str_replace('<!-- [LWPHP_SIDEBAR_INJECTION_POINT] -->', $link . "\n            <!-- [LWPHP_SIDEBAR_INJECTION_POINT] -->", $content);
+
+        file_put_contents($sidebarPath, $content);
+        $output->writeln("<info>Auto-wired:</info> Added {$label} to sidebar menu");
     }
 }

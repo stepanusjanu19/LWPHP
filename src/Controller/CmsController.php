@@ -16,8 +16,7 @@ class CmsController
         private View $view,
         private PostRepository $postRepo,
         private UserRepository $userRepo
-        )
-    {
+    ) {
     }
 
     public function dashboard(ServerRequestInterface $request): ResponseInterface
@@ -36,6 +35,48 @@ class CmsController
             'total_posts' => $postCount,
             'total_users' => number_format($userCount),
             'sys_load' => number_format($sysLoad, 2)
+        ]);
+
+        return new Response(200, ['Content-Type' => 'text/html'], $html);
+    }
+
+    public function systemInfo(ServerRequestInterface $request): ResponseInterface
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $html = $this->view->render('cms/system_info', [
+            'username' => $_SESSION['username'] ?? 'Admin',
+            'php_version' => PHP_VERSION,
+            'os' => php_uname(),
+            'server_software' => $request->getServerParams()['SERVER_SOFTWARE'] ?? 'Unknown CLI/Built-in',
+            'memory_limit' => ini_get('memory_limit'),
+            'max_execution_time' => ini_get('max_execution_time')
+        ]);
+
+        return new Response(200, ['Content-Type' => 'text/html'], $html);
+    }
+
+    public function enabledFeatures(ServerRequestInterface $request): ResponseInterface
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Simulating discovered modules from src/Controller directory
+        $modules = [];
+        $controllers = glob(__DIR__ . '/*Controller.php');
+        foreach ($controllers as $file) {
+            $base = basename($file, 'Controller.php');
+            if (!in_array($base, ['Cms', 'Auth', 'Home', 'Livewire', 'RpcGateway', 'Sitemap', 'Benchmark', 'Docs'])) {
+                $modules[] = $base;
+            }
+        }
+
+        $html = $this->view->render('cms/enabled_features', [
+            'username' => $_SESSION['username'] ?? 'Admin',
+            'modules' => $modules
         ]);
 
         return new Response(200, ['Content-Type' => 'text/html'], $html);

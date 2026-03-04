@@ -10,97 +10,315 @@
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <style>
         :root {
-            --bg-color: #0d0f14;
-            --card-bg: rgba(23, 27, 34, 0.7);
-            --primary: #4f46e5;
-            --primary-glow: rgba(79, 70, 229, 0.3);
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --accent: #10b981;
+            /* Premium Dark Theme Core */
+            --bg-color: #09090b; /* Zinc 950 */
+            --card-bg: rgba(24, 24, 27, 0.65); /* Zinc 900 Glass */
+            --card-hover: rgba(39, 39, 42, 0.8); /* Zinc 800 Glass */
+            
+            /* Typography Colors */
+            --text-main: #f8fafc; /* Slate 50 */
+            --text-muted: #94a3b8; /* Slate 400 */
+            --text-dark: #cbd5e1; /* Slate 300 */
+            
+            /* Accents & Gradients */
+            --primary: #6366f1; /* Indigo 500 */
+            --primary-light: #818cf8; /* Indigo 400 */
+            --primary-dark: #4f46e5; /* Indigo 600 */
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            
+            --accent: #a855f7; /* Purple 500 */
+            --accent-glow: rgba(168, 85, 247, 0.25);
+            
+            --success: #10b981; /* Emerald 500 */
+            --danger: #ef4444; /* Red 500 */
+            
+            /* Structural Effects */
             --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-border-hover: rgba(255, 255, 255, 0.15);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.5), 0 4px 10px -4px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 20px 0 var(--primary-glow);
+            
+            /* Transitions */
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.08), transparent 25%);
             color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 2rem;
         }
 
+        /* -------------------------------------------------------------
+           Navigation Layout
+           ------------------------------------------------------------- */
         nav {
             padding: 1.5rem 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 50;
         }
 
         .logo {
             font-family: 'Outfit', sans-serif;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 1.5rem;
             color: var(--text-main);
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            letter-spacing: -0.02em;
         }
 
-        .logo span { color: var(--primary); }
+        .logo span { 
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
         .nav-links a { 
             color: var(--text-muted); 
             text-decoration: none; 
-            font-size: 0.9rem; 
-            transition: color 0.3s;
+            font-size: 0.95rem; 
+            font-weight: 500;
+            transition: color 0.2s var(--ease-out);
+            position: relative;
         }
+        
         .nav-links a:hover { color: var(--text-main); }
-
-        .btn {
+        
+        /* Subtle underline effect on hover */
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
             background: var(--primary);
+            transition: width 0.3s var(--ease-out);
+            border-radius: 2px;
+        }
+        .nav-links a:hover::after { width: 100%; }
+
+        /* -------------------------------------------------------------
+           Button Variations (Themed)
+           ------------------------------------------------------------- */
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
+            padding: 0.6rem 1.4rem;
+            border-radius: 8px; /* Slightly sharper border for tech look */
             text-decoration: none;
             font-weight: 600;
             font-size: 0.9rem;
-            transition: all 0.3s;
-            border: none;
+            letter-spacing: 0.01em;
+            transition: all 0.3s var(--ease-out);
+            border: 1px solid rgba(255,255,255,0.1);
             cursor: pointer;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px var(--primary-glow);
+            box-shadow: var(--shadow-glow);
+            border-color: rgba(255,255,255,0.2);
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
         }
 
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--glass-border-hover);
+            box-shadow: none;
+            color: white;
+        }
+
+        /* -------------------------------------------------------------
+           Glassmorphism Containers
+           ------------------------------------------------------------- */
         .glass-card {
             background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border);
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 2.5rem;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s var(--ease-out);
         }
 
+        .glass-card:hover {
+            border-color: var(--glass-border-hover);
+            background: var(--card-hover);
+        }
+
+        /* -------------------------------------------------------------
+           Typography Utilities
+           ------------------------------------------------------------- */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        p {
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        /* -------------------------------------------------------------
+           Global Forms
+           ------------------------------------------------------------- */
+        .form-control {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: var(--text-main) !important;
+            padding: 0.85rem 1rem !important;
+            border-radius: 8px !important;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s var(--ease-out);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light) !important;
+            box-shadow: 0 0 0 3px var(--primary-glow) !important;
+            background: rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* -------------------------------------------------------------
+           Footer
+           ------------------------------------------------------------- */
         footer {
             text-align: center;
             padding: 4rem 0;
             color: var(--text-muted);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             border-top: 1px solid var(--glass-border);
             margin-top: 4rem;
+        }
+
+        /* -------------------------------------------------------------
+           Dashboard Grid & Sidebar 
+           ------------------------------------------------------------- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 2.5rem;
+            margin-top: 2rem;
+            align-items: start;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 2rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.8rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+        }
+
+        .sidebar-nav a svg {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background: var(--primary-glow);
+            color: var(--text-main);
+            transform: translateX(4px);
+            box-shadow: inset 2px 0 0 var(--primary);
+        }
+
+        .sidebar-nav a:hover svg, .sidebar-nav a.active svg {
+            opacity: 1;
+            color: var(--primary-light);
         }
 
         {% block extra_css %}{% endblock %}
@@ -132,5 +350,42 @@
             <p>&copy; {{ "now"|date("Y") }} LWPHP Framework. Built for speed and elegance.</p>
         </footer>
     </div>
+
+    <!-- Global HTMX Error Handler for Forms -->
+    <script>
+        document.body.addEventListener('htmx:responseError', function(evt) {
+            try {
+                const xhr = evt.detail.xhr;
+                const response = JSON.parse(xhr.responseText);
+                if (response.error) {
+                    const form = evt.detail.elt;
+                    // Check if the element that fired the request is a form
+                    if (form && form.tagName === 'FORM') {
+                        // Remove previous error
+                        const existing = form.querySelector('.global-error-msg');
+                        if (existing) existing.remove();
+                        
+                        // Create and inject the error alert dynamically
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'error-msg global-error-msg';
+                        errorDiv.style.color = '#ef4444';
+                        errorDiv.style.background = 'rgba(239, 68, 68, 0.1)';
+                        errorDiv.style.padding = '0.75rem';
+                        errorDiv.style.borderRadius = '8px';
+                        errorDiv.style.marginBottom = '1rem';
+                        errorDiv.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+                        errorDiv.style.fontSize = '0.85rem';
+                        errorDiv.innerText = response.error;
+                        
+                        form.prepend(errorDiv);
+                    } else {
+                        alert("Error: " + response.error);
+                    }
+                }
+            } catch (e) {
+                // If not JSON or an unexpected error format
+            }
+        });
+    </script>
 </body>
 </html>

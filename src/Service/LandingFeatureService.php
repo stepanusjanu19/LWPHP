@@ -31,16 +31,31 @@ class LandingFeatureService extends Service
     public function create(array $data)
     {
         return $this->execute(function () use ($data) {
-            // Validate data, create entity, persist via repository
-            // return $entity;
+            if (empty($data['title']) || empty($data['description']) || empty($data['icon'])) {
+                throw new \InvalidArgumentException('Title, description, and icon are required.');
+            }
+            $entity = new \Kei\Lwphp\Entity\LandingFeature();
+            $entity->setTitle($data['title']);
+            $entity->setDescription($data['description']);
+            $entity->setIcon($data['icon']);
+            return $this->repository->save($entity);
         }, 'Create LandingFeature');
     }
 
     public function update(int $id, array $data)
     {
         return $this->execute(function () use ($id, $data) {
-            // Fetch entity, update fields, persist
-            // return $entity;
+            $entity = $this->repository->findById($id);
+            if (!$entity) {
+                throw new \RuntimeException('LandingFeature not found.');
+            }
+            if (isset($data['title']))
+                $entity->setTitle($data['title']);
+            if (isset($data['description']))
+                $entity->setDescription($data['description']);
+            if (isset($data['icon']))
+                $entity->setIcon($data['icon']);
+            return $this->repository->save($entity);
         }, 'Update LandingFeature');
     }
 

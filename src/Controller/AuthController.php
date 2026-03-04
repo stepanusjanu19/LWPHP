@@ -16,15 +16,11 @@ class AuthController
         private View $view,
         private LoggerInterface $logger,
         private UserRepository $userRepository
-        )
-    {
+    ) {
     }
 
     public function loginForm(ServerRequestInterface $request): ResponseInterface
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         if (isset($_SESSION['user_id'])) {
             return new Response(302, ['Location' => '/admin']);
         }
@@ -35,10 +31,6 @@ class AuthController
 
     public function login(ServerRequestInterface $request): ResponseInterface
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         $body = $request->getParsedBody();
         $username = $body['username'] ?? '';
         $password = $body['password'] ?? '';
@@ -56,7 +48,14 @@ class AuthController
 
                 $ip = $request->getServerParams()['REMOTE_ADDR'] ?? '0.0.0.0';
                 $userAgent = $request->getHeaderLine('User-Agent');
-                $_SESSION['auth_signature'] = hash('sha256', $_SESSION['auth_key'] . $ip . $userAgent);
+                $appKey = $_ENV['APP_KEY'] ?? getenv('APP_KEY') ?: '';
+
+                if (empty($appKey) || !str_starts_with($appKey, 'base64:')) {
+                    $html = $this->view->render('auth/login', ['error' => 'Critical: APP_KEY signature pattern is not valid. Run key:generate.']);
+                    return new Response(500, ['Content-Type' => 'text/html'], $html);
+                }
+
+                $_SESSION['auth_signature'] = hash('sha256', $appKey . $ip . $userAgent);
 
                 $this->logger->info("User logged in: {$username}");
 
@@ -70,9 +69,6 @@ class AuthController
 
     public function registerForm(ServerRequestInterface $request): ResponseInterface
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         if (isset($_SESSION['user_id'])) {
             return new Response(302, ['Location' => '/admin']);
         }
@@ -134,9 +130,6 @@ class AuthController
 
     public function logout(ServerRequestInterface $request): ResponseInterface
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         session_destroy();
         return new Response(302, ['Location' => '/']);
     }

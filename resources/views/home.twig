@@ -39,6 +39,44 @@
     color: var(--primary);
 }
 
+.testimonials {
+    margin-top: 6rem;
+    text-align: center;
+}
+
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+    margin-top: 3rem;
+    text-align: left;
+}
+
+.testimonial-card p {
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--text-main);
+    margin-bottom: 1.5rem;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.author-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+}
+
 .glow-point {
     position: absolute;
     width: 400px;
@@ -54,11 +92,11 @@
 {% block content %}
 <section class="hero">
     <div class="glow-point"></div>
-    <h1>Lightweight PHP <br>Framework</h1>
-    <p>Elegant design, simple architecture, and blazing fast performance. The next generation of PHP development starts here.</p>
+    <h1>{{ hero.headline|default('Lightweight PHP <br>Framework')|raw }}</h1>
+    <p>{{ hero.subheadline|default('Elegant design, simple architecture, and blazing fast performance. The next generation of PHP development starts here.') }}</p>
     <div style="display: flex; gap: 1.5rem; justify-content: center;">
-        <a href="/admin" class="btn" style="padding: 1rem 2.5rem; font-size: 1.1rem;">Get Started</a>
-        <a href="/docs" class="btn" style="background: transparent; border: 1px solid var(--glass-border); padding: 1rem 2.5rem; font-size: 1.1rem;">Documentation</a>
+        <a href="{{ hero.buttonUrl|default('/admin') }}" class="btn" style="padding: 1rem 2.5rem; font-size: 1.1rem;">{{ hero.buttonText|default('Get Started') }}</a>
+        <a href="/docs" class="btn btn-outline" style="padding: 1rem 2.5rem; font-size: 1.1rem;">Documentation</a>
     </div>
 </section>
 
@@ -80,5 +118,29 @@
     </div>
     {% endfor %}
 </div>
+
+{% if testimonials|length > 0 %}
+<section class="testimonials">
+    <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.5rem; margin-bottom: 1rem;">What Developers Are Saying</h2>
+    <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">Join the growing community building faster, more beautiful web applications with LWPHP.</p>
+    
+    <div class="testimonials-grid">
+        {% for testimonial in testimonials %}
+        <div class="glass-card testimonial-card">
+            <p>"{{ testimonial.content }}"</p>
+            <div class="testimonial-author">
+                <div class="author-avatar">{{ testimonial.authorName|slice(0, 1)|upper }}</div>
+                <div>
+                    <h4 style="margin: 0; font-size: 1rem; color: var(--text-main);">{{ testimonial.authorName }}</h4>
+                    {% if testimonial.company %}
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">{{ testimonial.company }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 
 {% endblock %}

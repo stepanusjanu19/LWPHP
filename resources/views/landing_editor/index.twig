@@ -1,0 +1,28 @@
+{% extends 'layout/base.twig' %}
+
+{% block title %}Landing Editor | LWPHP CMS{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <aside class="sidebar glass-card">
+        <div class="user-profile">
+            <div class="avatar">{{ username|default('A')|slice(0,1)|upper }}</div>
+            <div>
+                <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Admin Provider</p>
+                <p style="font-weight: 600; font-family: 'Outfit', sans-serif; font-size: 1.1rem; line-height: 1.2;">{{ username|default('admin') }}</p>
+            </div>
+        </div>
+        {% include 'partials/sidebar.twig' with {'active_page': 'landing_editor'} %}
+    </aside>
+
+    <div class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.2rem;">Landing Page Editor</h1>
+        </div>
+
+        <!-- Render the Livewire component -->
+        {{ render_livewire('LandingManagerComponent')|raw }}
+
+    </div>
+</div>
+{% endblock %}

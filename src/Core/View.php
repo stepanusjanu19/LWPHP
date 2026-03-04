@@ -4,6 +4,8 @@ namespace Kei\Lwphp\Core;
 
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use Twig\TwigFunction;
+use Psr\Container\ContainerInterface;
 
 /**
  * View engine integrating Twig templating for server-rendered interfaces.
@@ -11,9 +13,11 @@ use Twig\Loader\FilesystemLoader;
 class View
 {
     private Environment $twig;
+    private ContainerInterface $container;
 
-    public function __construct(string $templateDir, ?string $cacheDir = null, bool $debug = false)
+    public function __construct(string $templateDir, ContainerInterface $container, ?string $cacheDir = null, bool $debug = false)
     {
+        $this->container = $container;
         $loader = new FilesystemLoader($templateDir);
 
         $options = [
@@ -29,6 +33,35 @@ class View
         if ($debug) {
             $this->twig->addExtension(new \Twig\Extension\DebugExtension());
         }
+
+        // Add Livewire Render Macro
+        $this->twig->addFunction(new TwigFunction('render_livewire', function (string $componentName, array $params = []) {
+            $className = "\\Kei\\Lwphp\\Livewire\\{$componentName}";
+            if (!class_exists($className)) {
+                return "<!-- Livewire Component Not Found: {$componentName} -->";
+            }
+
+            /** @var \Kei\Lwphp\Livewire\Component $component */
+            $component = $this->container->get($className);
+            $component->hydrate($params);
+
+            $state = $component->dehydrate();
+            $state['_id'] = $component->id;
+            $state['_name'] = $componentName;
+
+            // Inject global session variables required for HTMX transactions
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                $state['csrf_token'] = $_SESSION['csrf_token'] ?? null;
+            } else {
+                $state['csrf_token'] = $state['csrf_token'] ?? null;
+            }
+
+            $viewPath = $component->render();
+            $viewPath = str_replace('.twig', '', $viewPath);
+
+            // Fetch the raw twig environment to prevent recursive injection loops in `render()` wrapper
+            return $this->twig->render($viewPath . '.twig', $state);
+        }, ['is_safe' => ['html']]));
     }
 
     /**

@@ -13,9 +13,25 @@ class AuthMiddleware implements MiddlewareInterface
     private array $roleRequirements = [
         '/admin' => 'admin',
         '/cms' => 'admin',
+        '/landing-editor' => 'admin',
         '/posts' => 'admin',
         '/categorys' => 'admin',
         '/rpc' => 'admin',
+        '/testimonials' => 'admin',
+        '/tickets' => 'admin',
+        '/devices' => 'admin',
+        '/sales' => [
+            'GET' => 'manager', // Test scenario: managers can view
+            '*' => 'admin'      // Admins required for POST/PUT/DELETE
+        ],
+        '/reports' => [
+            'GET' => 'manager',
+            '*' => 'admin'
+        ],
+        '/units' => [
+            'GET' => 'manager',
+            '*' => 'admin'
+        ],
     ];
 
     private array $protectedPaths;
@@ -56,11 +72,17 @@ class AuthMiddleware implements MiddlewareInterface
         }
 
         // 1. Signature Pattern Validation
-        $sessionKey = $_SESSION['auth_key'] ?? '';
+        $appKey = $_ENV['APP_KEY'] ?? getenv('APP_KEY') ?: '';
+
+        if (empty($appKey) || !str_starts_with($appKey, 'base64:')) {
+            session_destroy();
+            return $this->unauthorized($request, 'APP_KEY signature pattern is not valid.', 500);
+        }
+
         $ip = $request->getServerParams()['REMOTE_ADDR'] ?? '0.0.0.0';
         $userAgent = $request->getHeaderLine('User-Agent');
 
-        $currentSignature = hash('sha256', $sessionKey . $ip . $userAgent);
+        $currentSignature = hash('sha256', $appKey . $ip . $userAgent);
         $storedSignature = $_SESSION['auth_signature'] ?? '';
 
         if (!hash_equals($storedSignature, $currentSignature)) {
@@ -70,16 +92,25 @@ class AuthMiddleware implements MiddlewareInterface
 
         // 2. Authorization (RBAC)
         $userRole = $_SESSION['role'] ?? 'guest';
-        foreach ($this->roleRequirements as $prefix => $requiredRole) {
+        $method = strtoupper($request->getMethod());
+
+        foreach ($this->roleRequirements as $prefix => $requirements) {
             if (str_starts_with($path, $prefix)) {
-                if ($userRole !== $requiredRole) {
-                    return $this->unauthorized($request, "Permission Denied: Requires '{$requiredRole}' role.", 403);
+
+                $requiredRole = is_array($requirements)
+                    ? ($requirements[$method] ?? $requirements['*'] ?? 'admin')
+                    : $requirements;
+
+                if ($userRole !== $requiredRole && $requiredRole !== 'any') {
+                    // Allow admins to override lower role requirements automatically
+                    if ($userRole !== 'admin') {
+                        return $this->unauthorized($request, "Permission Denied: Requires '{$requiredRole}' role.", 403);
+                    }
                 }
             }
         }
 
         // 3. CSRF Validation
-        $method = strtoupper($request->getMethod());
         if (in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'])) {
             $csrfToken = $request->getHeaderLine('X-CSRF-Token');
             $body = $request->getParsedBody();

@@ -107,8 +107,6 @@
             {% if item|default(false) %}
             <input type="hidden" name="id" value="{{ item.id }}">
             {% endif %}
-            
-            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
             <div class="form-group">
                 <label>Title</label>

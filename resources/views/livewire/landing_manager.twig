@@ -1,0 +1,138 @@
+<div id="lw-{{ _id }}" class="livewire-component">
+
+    <!-- CSS specifically for the Landing Manager SPA Toolbar -->
+    <style>
+        .lw-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1rem;
+        }
+
+        .lw-tab {
+            padding: 0.75rem 1.5rem;
+            color: var(--text-muted);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .lw-tab:hover {
+            color: var(--text-main);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .lw-tab.active {
+            background: rgba(79, 70, 229, 0.15);
+            color: var(--primary);
+            border-color: rgba(79, 70, 229, 0.3);
+        }
+        
+        .lw-content-area {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <div class="lw-tabs">
+        <button 
+            hx-post="/livewire/message/{{ _name }}" 
+            hx-target="#lw-{{ _id }}" 
+            hx-swap="outerHTML" 
+            hx-headers='{"HX-Trigger-Name": "switchTabToFeatures", "X-CSRF-Token": "{{ csrf_token }}"}'
+            class="lw-tab {% if activeTab == 'features' %}active{% endif %}">
+            <svg style="width:16px;height:16px;display:inline;margin-right:5px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            Features
+        </button>
+
+        <button 
+            hx-post="/livewire/message/{{ _name }}" 
+            hx-target="#lw-{{ _id }}" 
+            hx-swap="outerHTML" 
+            hx-headers='{"HX-Trigger-Name": "switchTabToTestimonials", "X-CSRF-Token": "{{ csrf_token }}"}'
+            class="lw-tab {% if activeTab == 'testimonials' %}active{% endif %}">
+            <svg style="width:16px;height:16px;display:inline;margin-right:5px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+            Testimonials
+        </button>
+        
+        <button 
+            hx-post="/livewire/message/{{ _name }}" 
+            hx-target="#lw-{{ _id }}" 
+            hx-swap="outerHTML" 
+            hx-headers='{"HX-Trigger-Name": "switchTabToHero", "X-CSRF-Token": "{{ csrf_token }}"}'
+            class="lw-tab {% if activeTab == 'hero' %}active{% endif %}">
+            <svg style="width:16px;height:16px;display:inline;margin-right:5px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            Hero Section
+        </button>
+    </div>
+
+    <div class="lw-content-area">
+        {% if activeTab == 'features' %}
+            <div class="glass-card" style="padding: 2rem;">
+                <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; margin-bottom: 1.5rem;">Landing Features Management</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Configure the high-level features displayed on the main landing page.</p>
+                
+                <a href="/landing_features/create" class="btn btn-primary" style="margin-bottom: 1rem;">+ Add Feature</a>
+                
+                {% include 'landing_features/feed.twig' ignore missing with {'items': features|default([])} %}
+            </div>
+
+        {% elseif activeTab == 'testimonials' %}
+            <div class="glass-card" style="padding: 2rem;">
+                <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; margin-bottom: 1.5rem;">Testimonials Management</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Configure user reviews showcased on the frontend.</p>
+                
+                <a href="/testimonials/create" class="btn btn-primary" style="margin-bottom: 1rem;">+ Add Testimonial</a>
+                
+                {% include 'testimonials/feed.twig' ignore missing with {'items': testimonials|default([])} %}
+            </div>
+
+        {% elseif activeTab == 'hero' %}
+            <div class="glass-card" style="padding: 2rem;">
+                <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; margin-bottom: 1.5rem;">Hero Section Settings</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Modify the main headline and calls-to-action on the landing page.</p>
+                
+                <form hx-post="/livewire" 
+                      hx-target="#lw-{{ _id }}" 
+                      hx-swap="outerHTML"
+                      class="glass-card" style="max-width: 600px; padding: 2rem;">
+                    
+                    <input type="hidden" name="name" value="{{ _name }}">
+                    <input type="hidden" name="id" value="{{ _id }}">
+                    <input type="hidden" name="action" value="saveHeroSettings">
+
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label for="headline">Main Headline</label>
+                        <input type="text" id="headline" name="payload[headline]" class="form-control" value="{{ hero.headline|default('') }}" required autocomplete="off">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label for="subheadline">Sub Headline (Description)</label>
+                        <textarea id="subheadline" name="payload[subheadline]" class="form-control" rows="4" required>{{ hero.subheadline|default('') }}</textarea>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                        <div class="form-group">
+                            <label for="buttonText">Primary Button Text</label>
+                            <input type="text" id="buttonText" name="payload[buttonText]" class="form-control" value="{{ hero.buttonText|default('') }}" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="buttonUrl">Primary Button Link</label>
+                            <input type="text" id="buttonUrl" name="payload[buttonUrl]" class="form-control" value="{{ hero.buttonUrl|default('') }}" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Save Hero Configuration</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+</div>

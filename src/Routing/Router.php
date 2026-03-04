@@ -26,9 +26,12 @@ class Router
 
     private function buildDispatcher(): Dispatcher
     {
-        return simpleDispatcher(function (RouteCollector $r) {
+        return \FastRoute\cachedDispatcher(function (RouteCollector $r) {
             Routes::define($r);
-        });
+        }, [
+            'cacheFile' => $this->config->get('cache.stores.file.path', sys_get_temp_dir() . '/lwphp_cache') . '/route.cache',
+            'cacheDisabled' => (bool) $this->config->get('app.debug', true),
+        ]);
     }
 
     /**

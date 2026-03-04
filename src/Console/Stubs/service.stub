@@ -28,16 +28,35 @@ class {{ className }}Service extends Service
     public function create(array $data)
     {
         return $this->execute(function () use ($data) {
-            // Validate data, create entity, persist via repository
-            // return $entity;
+            $entity = new \Kei\Lwphp\Entity\{{ className }}();
+            // Automatically map provided data to standard setters (e.g., 'title' -> 'setTitle')
+            foreach ($data as $key => $val) {
+                // Ignore structural UI keys like csrf_token
+                if ($key === 'csrf_token') continue;
+                $setter = 'set' . str_replace('_', '', ucwords($key, '_'));
+                if (method_exists($entity, $setter)) {
+                    $entity->$setter($val);
+                }
+            }
+            return $this->repository->save($entity);
         }, 'Create {{ className }}');
     }
 
     public function update(int $id, array $data)
     {
         return $this->execute(function () use ($id, $data) {
-            // Fetch entity, update fields, persist
-            // return $entity;
+            $entity = $this->repository->findById($id);
+            if (!$entity) {
+                throw new \RuntimeException('{{ className }} not found.');
+            }
+            foreach ($data as $key => $val) {
+                if ($key === 'csrf_token' || $key === 'id') continue;
+                $setter = 'set' . str_replace('_', '', ucwords($key, '_'));
+                if (method_exists($entity, $setter)) {
+                    $entity->$setter($val);
+                }
+            }
+            return $this->repository->save($entity);
         }, 'Update {{ className }}');
     }
 

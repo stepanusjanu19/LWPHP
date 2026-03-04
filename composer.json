@@ -21,7 +21,8 @@
         "twig/twig": "^3.23"
     },
     "require-dev": {
-        "symfony/var-dumper": "^6.0"
+        "symfony/var-dumper": "^6.0",
+        "pestphp/pest": "^3.8"
     },
     "license": "mit",
     "autoload": {
@@ -29,9 +30,19 @@
             "Kei\\Lwphp\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "stepanusjanu19"
         }
-    ]
+    ],
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
 }

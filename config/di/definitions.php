@@ -53,24 +53,25 @@ return [
     return $router->getDispatcher();
   }),
 
-  \Kei\Lwphp\Core\View::class => \DI\factory(function (ConfigLoader $config) {
+  \Kei\Lwphp\Core\View::class => \DI\factory(function (ConfigLoader $config, \Psr\Container\ContainerInterface $container) {
     $templateDir = base_path('resources/views');
     if (!is_dir($templateDir)) {
       @mkdir($templateDir, 0755, true);
     }
     $cacheDir = $config->get('cache.stores.file.path', sys_get_temp_dir() . '/lwphp_cache') . '/twig';
     $debug = (bool) $config->get('app.debug', true);
-    return new \Kei\Lwphp\Core\View($templateDir, $cacheDir, $debug);
+    return new \Kei\Lwphp\Core\View($templateDir, $container, $cacheDir, $debug);
   }),
 
     // ------------------------------------------------------------------
     // Doctrine ORM — multi-driver (SQLite default)
     // ------------------------------------------------------------------
   EntityManagerInterface::class => \DI\factory(
-    function (ConfigLoader $config): EntityManagerInterface {
+    function (ConfigLoader $config, \Psr\Container\ContainerInterface $container): EntityManagerInterface {
       $default = $config->get('database.default', 'sqlite');
       $dbParams = $config->get("database.connections.{$default}", []);
       $entityPath = $config->get('database.entity_path', base_path('src/Entity'));
+      $isDebug = (bool) $config->get('app.debug', true);
 
       // For SQLite: auto-create the storage directory and ensure absolute path
       if (($dbParams['driver'] ?? '') === 'pdo_sqlite') {
@@ -86,12 +87,35 @@ return [
         }
       }
 
+      // Doctrine Setup with Cache mapping
+      $cacheStore = null;
+      if (!$isDebug) {
+        $cacheStore = new \Symfony\Component\Cache\Adapter\Psr16Adapter($container->get(\Symfony\Contracts\Cache\CacheInterface::class));
+      }
+
       $ormConfig = ORMSetup::createAttributeMetadataConfiguration(
         paths: [$entityPath],
-        isDevMode: (bool) $config->get('app.debug', true),
+        isDevMode: $isDebug,
       );
 
+      // Map Production Cache
+      if ($cacheStore) {
+        $ormConfig->setMetadataCache($cacheStore);
+        $ormConfig->setQueryCache($cacheStore);
+      }
+
       $connection = DriverManager::getConnection($dbParams, $ormConfig);
+
+      // Apply Performance PRAGMAs if SQLite
+      if (($dbParams['driver'] ?? '') === 'pdo_sqlite') {
+        $connection->executeStatement('PRAGMA journal_mode = WAL;');
+        $connection->executeStatement('PRAGMA synchronous = NORMAL;');
+        $connection->executeStatement('PRAGMA temp_store = MEMORY;');
+        $connection->executeStatement('PRAGMA mmap_size = 3000000000;');
+        $connection->executeStatement('PRAGMA cache_size = -20000;');
+        $connection->executeStatement('PRAGMA busy_timeout = 5000;');
+      }
+
       return new EntityManager($connection, $ormConfig);
     }
   ),
@@ -142,8 +166,7 @@ return [
 
   JobController::class => \DI\autowire(JobController::class),
 
-  SchemaController::class => \DI\create(SchemaController::class)
-    ->constructor(\DI\get(JobRepository::class)),
+  SchemaController::class => \DI\autowire(SchemaController::class),
 
     // ------------------------------------------------------------------
     // Security layer
@@ -228,7 +251,7 @@ return [
 
     $logger = new Logger($channel);
     $logger->pushHandler(new RotatingFileHandler($logPath, 7, $level));
-    if ((bool) $config->get('app.debug', true)) {
+    if ((bool) $config->get('app.debug', true) && php_sapi_name() === 'cli') {
       $logger->pushHandler(new StreamHandler('php://stderr', Level::Debug));
     }
     return $logger;
@@ -254,8 +277,38 @@ return [
 
   \Kei\Lwphp\Controller\ArticleController::class => \DI\autowire(\Kei\Lwphp\Controller\ArticleController::class),
 
+  \Kei\Lwphp\Service\HeroSettingService::class => \DI\autowire(\Kei\Lwphp\Service\HeroSettingService::class),
+
   \Kei\Lwphp\Service\LandingFeatureService::class => \DI\autowire(\Kei\Lwphp\Service\LandingFeatureService::class),
 
   \Kei\Lwphp\Controller\LandingFeatureController::class => \DI\autowire(\Kei\Lwphp\Controller\LandingFeatureController::class),
+
+  \Kei\Lwphp\Service\ProductService::class => \DI\autowire(\Kei\Lwphp\Service\ProductService::class),
+
+  \Kei\Lwphp\Controller\ProductController::class => \DI\autowire(\Kei\Lwphp\Controller\ProductController::class),
+
+  \Kei\Lwphp\Service\TestimonialService::class => \DI\autowire(\Kei\Lwphp\Service\TestimonialService::class),
+
+  \Kei\Lwphp\Controller\TestimonialController::class => \DI\autowire(\Kei\Lwphp\Controller\TestimonialController::class),
+
+  \Kei\Lwphp\Service\TicketService::class => \DI\autowire(\Kei\Lwphp\Service\TicketService::class),
+
+  \Kei\Lwphp\Controller\TicketController::class => \DI\autowire(\Kei\Lwphp\Controller\TicketController::class),
+
+  \Kei\Lwphp\Service\DeviceService::class => \DI\autowire(\Kei\Lwphp\Service\DeviceService::class),
+
+  \Kei\Lwphp\Controller\DeviceController::class => \DI\autowire(\Kei\Lwphp\Controller\DeviceController::class),
+
+  \Kei\Lwphp\Service\SaleService::class => \DI\autowire(\Kei\Lwphp\Service\SaleService::class),
+
+  \Kei\Lwphp\Controller\SaleController::class => \DI\autowire(\Kei\Lwphp\Controller\SaleController::class),
+
+  \Kei\Lwphp\Service\ReportService::class => \DI\autowire(\Kei\Lwphp\Service\ReportService::class),
+
+  \Kei\Lwphp\Controller\ReportController::class => \DI\autowire(\Kei\Lwphp\Controller\ReportController::class),
+
+  \Kei\Lwphp\Service\UnitService::class => \DI\autowire(\Kei\Lwphp\Service\UnitService::class),
+
+  \Kei\Lwphp\Controller\UnitController::class => \DI\autowire(\Kei\Lwphp\Controller\UnitController::class),
 
 ];

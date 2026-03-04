@@ -3,78 +3,6 @@
 {% block title %}Dashboard | LWPHP CMS{% endblock %}
 
 {% block extra_css %}
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    gap: 2.5rem;
-    margin-top: 2rem;
-    align-items: start;
-}
-
-.sidebar {
-    position: sticky;
-    top: 2rem;
-}
-
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--glass-border);
-}
-
-.avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: white;
-    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
-}
-
-.sidebar-nav {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.sidebar-nav a {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.8rem 1rem;
-    color: var(--text-muted);
-    text-decoration: none;
-    border-radius: 10px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-weight: 500;
-}
-
-.sidebar-nav a svg {
-    width: 20px;
-    height: 20px;
-    opacity: 0.7;
-    transition: opacity 0.3s;
-}
-
-.sidebar-nav a:hover, .sidebar-nav a.active {
-    background: rgba(79, 70, 229, 0.15);
-    color: var(--text-main);
-    transform: translateX(4px);
-}
-
-.sidebar-nav a:hover svg, .sidebar-nav a.active svg {
-    opacity: 1;
-    color: var(--primary);
-}
 
 .stats-row {
     display: grid;
@@ -151,9 +79,11 @@
 .generator-section {
     padding: 2.5rem;
     border-radius: 16px;
-    background: linear-gradient(145deg, rgba(23, 27, 34, 0.8), rgba(15, 17, 21, 0.9));
+    background: linear-gradient(145deg, var(--card-bg), rgba(24, 24, 27, 0.4));
     position: relative;
     overflow: hidden;
+    border: 1px solid var(--glass-border);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
 }
 
 .generator-section::after {
@@ -200,23 +130,23 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary), #818cf8) !important;
-    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
-    border: none !important;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+    box-shadow: var(--shadow-sm) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
 }
 
 .btn-accent {
-    background: linear-gradient(135deg, var(--accent), #34d399) !important;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-    border: none !important;
+    background: linear-gradient(135deg, var(--accent), #9333ea) !important;
+    box-shadow: var(--shadow-sm) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
 }
 
 .console-output {
     background: #09090b;
-    color: #10b981;
+    color: var(--success);
     font-family: 'Fira Code', 'Courier New', monospace;
     padding: 1.25rem;
-    border-radius: 10px;
+    border-radius: 12px;
     margin-top: 2rem;
     font-size: 0.85rem;
     min-height: 120px;
@@ -245,36 +175,7 @@
                 <p style="font-weight: 600; font-family: 'Outfit', sans-serif; font-size: 1.1rem; line-height: 1.2;">{{ username }}</p>
             </div>
         </div>
-        <ul class="sidebar-nav">
-            <li><a href="/admin" class="active">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                Overview
-            </a></li>
-            <li><a href="/landing_features">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                Landing Features
-            </a></li>
-            <li><a href="/posts">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
-                Post Management
-            </a></li>
-            <li><a href="/categorys">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
-                Categories
-            </a></li>
-            <li><a href="/tasks">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                Systems Tasks
-            </a></li>
-            <li><a href="/jobs">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Job Scheduler
-            </a></li>
-            <li><a href="/schema">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
-                Schema Explorer
-            </a></li>
-        </ul>
+        {% include 'partials/sidebar.twig' with {'active_page': 'overview'} %}
     </aside>
 
     <div class="main-content">
@@ -368,8 +269,29 @@ async function runRpc(method) {
         const data = await response.json();
         
         if (data.result && data.result.success) {
-            outputDiv.innerHTML += '<div style="color: #10b981; margin-top: 10px;">✔ Success! Components created successfully.</div>';
+            outputDiv.innerHTML += '<div style="color: #10b981; margin-top: 10px;">✔ Success! Components created successfully. Updating Sidebar real-time...</div>';
             outputDiv.innerHTML += '<pre style="margin-top: 10px; color: #d1d5db; white-space: pre-wrap;">' + data.result.message + '</pre>';
+            
+            // Generate exact frontend equivalent of backend slug/pascal variables
+            const pascalName = name.split(/[-_ ]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('') + 's';
+            const slug = name.split(/[-_ ]+/).map(w => w.toLowerCase()).join('_') + 's';
+            
+            // Build the DOM Node
+            const li = document.createElement('li');
+            li.innerHTML = '<a href="/' + slug + '" style="padding: 0.6rem 1rem; font-size: 0.85rem; transition: background-color 0.5s ease; display:flex; align-items:center; gap:0.75rem; text-decoration:none; color:var(--text-muted); border-radius:10px;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; opacity:0.7;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg> ' + pascalName + '</a>';
+            
+            // Append and animate seamlessly
+            const subnav = document.querySelector('.sidebar-subnav');
+            if (subnav) {
+                subnav.appendChild(li);
+                const anchor = li.querySelector('a');
+                anchor.style.backgroundColor = 'rgba(79, 70, 229, 0.25)';
+                anchor.style.color = '#fff';
+                setTimeout(() => {
+                    anchor.style.backgroundColor = 'transparent';
+                    anchor.style.color = 'var(--text-muted)';
+                }, 2500);
+            }
         } else {
             outputDiv.innerHTML += '<div style="color: #ef4444; margin-top: 10px;">✖ Error: ' + (data.error ? data.error.message : 'Unknown generator error') + '</div>';
         }
