@@ -36,11 +36,17 @@
     color: var(--primary);
 }
 
+.docs-content {
+    min-width: 0;
+    max-width: 100%;
+}
 .docs-content h1, .docs-content h2, .docs-content h3 {
     font-family: 'Outfit', sans-serif;
     color: var(--text-main);
     margin-top: 2rem;
     margin-bottom: 1rem;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 .docs-content h1 { font-size: 2.2rem; margin-top: 0; }
 .docs-content h2 { font-size: 1.6rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; }
@@ -70,10 +76,28 @@
     margin-bottom: 0.5rem;
 }
 
+.mobile-docs-toggle {
+    display: none;
+}
+
 @media (max-width: 768px) {
     .dashboard-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
+    }
+    .mobile-docs-toggle {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .sidebar {
+        display: none;
+        animation: fadeIn 0.3s var(--ease-out);
+    }
+    .sidebar.active {
+        display: block;
     }
     .docs-content h1 { font-size: 1.8rem; }
     .docs-content h2 { font-size: 1.4rem; }
@@ -83,17 +107,23 @@
 
 {% block content %}
 <div class="dashboard-grid">
-    <aside class="sidebar glass-card">
-        <ul class="sidebar-nav">
-            <li><a href="#quick-start">Quick Start</a></li>
-            <li><a href="#routing">Routing</a></li>
-            <li><a href="#controllers">Controllers</a></li>
-            <li><a href="#views">Views (Twig)</a></li>
-            <li><a href="#database">Database & ORM</a></li>
-            <li><a href="#cli-tool">CLI Tool</a></li>
-            <li><a href="#rpc">Payload RPC</a></li>
-        </ul>
-    </aside>
+    <div>
+        <button class="btn btn-outline mobile-docs-toggle" onclick="document.getElementById('docs-sidebar').classList.toggle('active')">
+            <svg style="width:18px;height:18px;margin-right:0.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            Table of Contents
+        </button>
+        <aside id="docs-sidebar" class="sidebar glass-card">
+            <ul class="sidebar-nav">
+                <li><a href="#quick-start">Quick Start</a></li>
+                <li><a href="#routing">Routing</a></li>
+                <li><a href="#controllers">Controllers</a></li>
+                <li><a href="#views">Views (Twig)</a></li>
+                <li><a href="#database">Database & ORM</a></li>
+                <li><a href="#cli-tool">CLI Tool</a></li>
+                <li><a href="#rpc">Payload RPC</a></li>
+            </ul>
+        </aside>
+    </div>
 
     <div class="main-content">
         <div class="glass-card docs-content">
