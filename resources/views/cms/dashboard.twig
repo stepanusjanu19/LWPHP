@@ -163,6 +163,25 @@
     background: rgba(255,255,255,0.2);
     border-radius: 3px;
 }
+
+@media (max-width: 768px) {
+    .stats-row {
+        grid-template-columns: 1fr;
+    }
+    .btn-group {
+        flex-direction: column;
+    }
+    .btn-group .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .generator-section {
+        padding: 1.5rem;
+    }
+    .form-group > div {
+        flex-direction: column;
+    }
+}
 {% endblock %}
 
 {% block content %}

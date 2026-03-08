@@ -69,6 +69,16 @@
 .docs-content li {
     margin-bottom: 0.5rem;
 }
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .docs-content h1 { font-size: 1.8rem; }
+    .docs-content h2 { font-size: 1.4rem; }
+    .docs-content pre { padding: 1rem; font-size: 0.85rem; }
+}
 {% endblock %}
 
 {% block content %}
