@@ -1,0 +1,38 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Disable directory browsing
+    Options -Indexes
+
+    # Block access to hidden files and directories (like .env, .git)
+    # Returning 404 makes them "not detected" instead of 403 Forbidden
+    RewriteCond %{REQUEST_URI} (?:^|/)\.
+    RewriteRule ^ - [R=404,L]
+
+    # Block access to framework system directories including 'tools' (make them not detected)
+    RewriteCond %{REQUEST_URI} ^/(api|benchmark|bin|config|database|server|src|storage|stubs|tests|tools|vendor)(/|$) [NC]
+    RewriteRule ^ - [R=404,L]
+
+    # Block access to ANY file physically located in the root directory so they cannot be viewed
+    RewriteCond %{REQUEST_URI} ^/([^/]+)$
+    RewriteCond %{DOCUMENT_ROOT}/%1 -f
+    RewriteRule ^ - [R=404,L]
+
+    # Route all valid web traffic directly to the public/ directory
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Forbidding access to dotfiles just in case mod_rewrite is off
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Explicitly block system directories and tools if mod_rewrite is off
+<DirectoryMatch "^.*/(api|benchmark|bin|config|database|server|src|storage|stubs|tests|tools|vendor)/">
+    Require all denied
+</DirectoryMatch>
+
+# Explicitly block architecture root files if mod_rewrite is off
+<FilesMatch "^(composer\.json|composer\.lock|phpunit\.xml|lwphp|README\.md|LICENSE)$">
+    Require all denied
+</FilesMatch>
