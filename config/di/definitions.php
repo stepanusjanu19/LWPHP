@@ -83,7 +83,7 @@ return [
         $dbParams['path'] = $sqlitePath;
         $dir = dirname($sqlitePath);
         if (!is_dir($dir)) {
-          @mkdir($dir, 0755, true);
+          mkdir($dir, 0755, true);
         }
       }
 
@@ -192,11 +192,9 @@ return [
   SsrfGuard::class => \DI\create(SsrfGuard::class),
 
   ThreatLogger::class => \DI\factory(function (ConfigLoader $config): ThreatLogger {
-    $path = (string) $config->get('app.logging.threat_log', storage_path('logs/threats.log'));
-    if (getenv('VERCEL') || isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL'])) {
-      $path = 'php://stderr';
-    }
-    return new ThreatLogger($path);
+    return new ThreatLogger(
+      (string) $config->get('app.logging.threat_log', storage_path('logs/threats.log'))
+    );
   }),
 
   AnomalyDetector::class => \DI\factory(function (EntityManagerInterface $em, ThreatLogger $threatLogger, ConfigLoader $config): AnomalyDetector {
@@ -260,20 +258,15 @@ return [
   LoggerInterface::class => \DI\factory(function (ConfigLoader $config): LoggerInterface {
     $channel = (string) $config->get('app.logging.channel', 'app');
     $level = Level::fromName((string) $config->get('app.logging.level', 'debug'));
-    $logger = new Logger($channel);
+    $logPath = (string) $config->get('app.logging.path', storage_path('logs/lwphp.log'));
+    $logDir = dirname($logPath);
 
-    if (getenv('VERCEL') || isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL'])) {
-      $logger->pushHandler(new StreamHandler('php://stderr', $level));
-    } else {
-      $logPath = (string) $config->get('app.logging.path', storage_path('logs/lwphp.log'));
-      $logDir = dirname($logPath);
-
-      if (!is_dir($logDir)) {
-        @mkdir($logDir, 0755, true);
-      }
-      $logger->pushHandler(new RotatingFileHandler($logPath, 7, $level));
+    if (!is_dir($logDir)) {
+      @mkdir($logDir, 0755, true);
     }
 
+    $logger = new Logger($channel);
+    $logger->pushHandler(new RotatingFileHandler($logPath, 7, $level));
     if ((bool) $config->get('app.debug', true) && php_sapi_name() === 'cli') {
       $logger->pushHandler(new StreamHandler('php://stderr', Level::Debug));
     }
