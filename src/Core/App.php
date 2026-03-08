@@ -84,24 +84,20 @@ class App
     // HTTP Kernel
     // -------------------------------------------------------------------------
 
-    public function run(ServerRequestInterface $request): void
+    public function run(ServerRequestInterface $request): ResponseInterface
     {
-        ob_start();
-
+        $requestStart = hrtime(true) / 1e6;
         // ── Pre-route CORS preflight ─────────────────────────────────────────
         // Handle OPTIONS before FastRoute dispatch so unknown paths still get
         // a proper 204 instead of a 404 for browser DELETE/PUT/POST preflights.
         if (strtoupper($request->getMethod()) === 'OPTIONS') {
             $factory = new \Nyholm\Psr7\Factory\Psr17Factory();
-            $response = $factory->createResponse(204)
+            return $factory->createResponse(204)
                 ->withHeader('Access-Control-Allow-Origin', '*')
                 ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
                 ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
                 ->withHeader('Access-Control-Max-Age', '86400')
                 ->withHeader('Content-Length', '0');
-            $this->emitResponse($response);
-            ob_end_flush();
-            return;
         }
 
         try {
@@ -126,7 +122,6 @@ class App
                 default => $this->createJson(500, ['error' => 'Internal Server Error']),
             };
         } catch (\Throwable $e) {
-            ob_clean();
             // Log the throw — only message and class, not full trace (unless debug)
             try {
                 $logger = $this->container->get(\Psr\Log\LoggerInterface::class);
@@ -142,9 +137,8 @@ class App
                     : null,
             ]);
         }
-
-        $this->emitResponse($response);
-        ob_end_flush();
+        $elapsed = round((hrtime(true) / 1e6) - $requestStart, 3);
+        return $response->withHeader('X-Response-Time', "{$elapsed}ms");
     }
 
 
@@ -190,7 +184,7 @@ class App
             ->withBody($body);
     }
 
-    private function emitResponse(ResponseInterface $response): void
+    public function emitResponse(ResponseInterface $response): void
     {
         if (headers_sent()) {
             return;
@@ -205,9 +199,6 @@ class App
                 $first = false;
             }
         }
-
-        $elapsed = round((hrtime(true) / 1e6) - self::$bootTime, 3);
-        header("X-Response-Time: {$elapsed}ms", true);
 
         echo $response->getBody();
     }

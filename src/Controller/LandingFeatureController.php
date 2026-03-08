@@ -37,7 +37,7 @@ class LandingFeatureController extends Controller
 
     public function edit(Request $request, array $args): Response
     {
-        $id = (int) ($args['id'] ?? 0);
+        $id = $args['id'] ?? 0;
         $item = $this->service->getById($id);
 
         if (!$item) {
@@ -58,7 +58,7 @@ class LandingFeatureController extends Controller
 
     public function update(Request $request, array $args): Response
     {
-        $id = (int) ($args['id'] ?? 0);
+        $id = $args['id'] ?? 0;
         $data = $this->parseBody($request);
         $this->service->update($id, $data);
         
@@ -67,7 +67,7 @@ class LandingFeatureController extends Controller
 
     public function destroy(Request $request, array $args): Response
     {
-        $id = (int) ($args['id'] ?? 0);
+        $id = $args['id'] ?? 0;
         $this->service->delete($id);
         
         return $this->factory->createResponse(200)->withHeader('HX-Refresh', 'true');

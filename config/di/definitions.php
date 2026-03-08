@@ -225,14 +225,30 @@ return [
     );
   }),
 
+  \Kei\Lwphp\Middleware\TrafficShaperMiddleware::class => \DI\factory(function (ConfigLoader $config, CacheInterface $cache): \Kei\Lwphp\Middleware\TrafficShaperMiddleware {
+    return new \Kei\Lwphp\Middleware\TrafficShaperMiddleware(
+      cache: $cache,
+      maxRequestsPerMinute: (int) $config->get('app.traffic_shaper.max_requests_per_minute', 120),
+      throttleThreshold: (int) $config->get('app.traffic_shaper.throttle_threshold', 80),
+      throttleDelayMs: (int) $config->get('app.traffic_shaper.throttle_delay_ms', 200),
+    );
+  }),
+
+  \Kei\Lwphp\Security\CryptoSignatureService::class => \DI\factory(function (ConfigLoader $config) {
+    $appKey = (string) $config->get('app.key', 'default_insecure_app_key_change_me');
+    return new \Kei\Lwphp\Security\CryptoSignatureService($appKey);
+  }),
+
+  \Kei\Lwphp\Middleware\SecureGatewayMiddleware::class => \DI\create(\Kei\Lwphp\Middleware\SecureGatewayMiddleware::class)
+    ->constructor(\DI\get(\Kei\Lwphp\Security\CryptoSignatureService::class)),
+
     // ------------------------------------------------------------------
-    // Cache (plug-and-play)
+    // Cache (In-Memory for Max Performance in React/Persistence)
     // ------------------------------------------------------------------
   CacheInterface::class => \DI\factory(function (ConfigLoader $config): CacheInterface {
-    return new FilesystemAdapter(
-      namespace: '',
-      defaultLifetime: 0,
-      directory: $config->get('cache.stores.file.path', sys_get_temp_dir() . '/lwphp_cache')
+    return new \Symfony\Component\Cache\Adapter\ArrayAdapter(
+      storeSerialized: false, // Keep objects in memory directly
+      defaultLifetime: 0
     );
   }),
 

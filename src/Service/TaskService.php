@@ -67,7 +67,7 @@ class TaskService extends BaseService
         return $task;
     }
 
-    public function delete(int $id): void
+    public function delete(int|string $id): void
     {
         $this->get($id); // throws 404 if not found
         $this->repo->delete($id);

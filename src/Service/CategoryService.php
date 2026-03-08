@@ -23,7 +23,7 @@ class CategoryService extends Service
         return $this->repository->findAll();
     }
 
-    public function getById(int $id)
+    public function getById(int|string $id)
     {
         return $this->repository->findById($id);
     }
@@ -41,7 +41,7 @@ class CategoryService extends Service
         }, 'Create Category');
     }
 
-    public function update(int $id, array $data)
+    public function update(int|string $id, array $data)
     {
         return $this->execute(function () use ($id, $data) {
             if (empty($data['name'])) {
@@ -57,7 +57,7 @@ class CategoryService extends Service
         }, 'Update Category');
     }
 
-    public function delete(int $id): bool
+    public function delete(int|string $id): bool
     {
         return $this->execute(function () use ($id) {
             return $this->repository->delete($id);

@@ -48,9 +48,22 @@ class BandwidthMiddleware implements MiddlewareInterface
 
         $response = $response->withHeader('X-Response-Time', "{$elapsed}ms");
 
+        // ── ETag Content Hashing ───────────────────────────────────────────────
+        $bodyStr = (string) $response->getBody();
+        if (strtoupper($request->getMethod()) === 'GET' && $response->getStatusCode() === 200 && $bodyStr !== '') {
+            $etag = '"' . md5($bodyStr) . '"';
+            $response = $response->withHeader('ETag', $etag);
+
+            // If the browser already has this exact state, return instantly with 0 bytes body.
+            if ($request->getHeaderLine('If-None-Match') === $etag) {
+                $response = $response->withStatus(304);
+                return $response->withBody((new \Nyholm\Psr7\Factory\Psr17Factory())->createStream(''));
+            }
+        }
+
         // ── Gzip compression ───────────────────────────────────────────────────
         if ($this->gzipEnabled && $this->clientAcceptsGzip($request)) {
-            $body = (string) $response->getBody();
+            $body = $bodyStr; // Use already extracted body
             $ct = $response->getHeaderLine('Content-Type');
             $compress = str_contains($ct, 'json') || str_contains($ct, 'text') || str_contains($ct, 'xml');
 
@@ -74,7 +87,8 @@ class BandwidthMiddleware implements MiddlewareInterface
             strtoupper($request->getMethod()) === 'GET'
             && !$response->hasHeader('Cache-Control')
         ) {
-            $response = $response->withHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            // Require revalidation so ETag is always checked, but permit caching
+            $response = $response->withHeader('Cache-Control', 'no-cache, must-revalidate');
         }
 
         return $response;

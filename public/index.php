@@ -15,4 +15,5 @@ $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
 $request = $creator->fromGlobals();
 
 $app = new \Kei\Lwphp\Core\App();
-$app->run($request);
+$response = $app->run($request);
+$app->emitResponse($response);

@@ -23,7 +23,7 @@ class SaleService extends Service
         return $this->repository->findAll();
     }
 
-    public function getById(int $id)
+    public function getById(int|string $id)
     {
         return $this->repository->findById($id);
     }
@@ -36,7 +36,7 @@ class SaleService extends Service
         }, 'Create Sale');
     }
 
-    public function update(int $id, array $data)
+    public function update(int|string $id, array $data)
     {
         return $this->execute(function () use ($id, $data) {
             // Fetch entity, update fields, persist
@@ -44,7 +44,7 @@ class SaleService extends Service
         }, 'Update Sale');
     }
 
-    public function delete(int $id): bool
+    public function delete(int|string $id): bool
     {
         return $this->execute(function () use ($id) {
             return $this->repository->delete($id);

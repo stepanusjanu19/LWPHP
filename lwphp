@@ -23,6 +23,8 @@ use Kei\Lwphp\Console\DbSeedCommand;
 use Kei\Lwphp\Console\KeyGenerateCommand;
 use Kei\Lwphp\Console\MakeSeedCommand;
 use Kei\Lwphp\Console\MakeFactoryCommand;
+use Kei\Lwphp\Console\MakeModuleCommand;
+use Kei\Lwphp\Console\MakeMigrationCommand;
 
 function base_path(string $path = ''): string
 {
@@ -48,6 +50,8 @@ $app->add(new MakeCrudCommand());
 $app->add(new MakeLivewireCommand());
 $app->add(new MakeSeedCommand());
 $app->add(new MakeFactoryCommand());
+$app->add(new MakeModuleCommand());
+$app->add(new MakeMigrationCommand());
 $app->add($container->get(MigrateCommand::class));
 $app->add($container->get(DbSeedCommand::class));
 $app->add(new ServeCommand());

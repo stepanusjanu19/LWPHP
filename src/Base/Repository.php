@@ -31,7 +31,7 @@ abstract class Repository implements RepositoryInterface
 
     // ── RepositoryInterface implementation ────────────────────────────────────
 
-    public function findById(int|string $id): mixed
+    public function findById(string $id): mixed
     {
         return $this->em->find($this->entityClass(), $id);
     }
@@ -47,7 +47,7 @@ abstract class Repository implements RepositoryInterface
         $this->em->flush();
     }
 
-    public function delete(int|string $id): bool
+    public function delete(string $id): bool
     {
         $entity = $this->findById($id);
         if ($entity === null) {

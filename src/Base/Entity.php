@@ -23,9 +23,8 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class Entity
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: Types::INTEGER)]
-    protected ?int $id = null;
+    #[ORM\Column(type: Types::STRING, length: 26)]
+    protected ?string $id = null;
 
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
     protected \DateTimeImmutable $createdAt;
@@ -38,13 +37,14 @@ abstract class Entity
 
     public function __construct()
     {
+        $this->id = (new \Symfony\Component\Uid\Ulid())->toBase32();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
 
     // ── Getters ──────────────────────────────────────────────────────────────
 
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->id;
     }

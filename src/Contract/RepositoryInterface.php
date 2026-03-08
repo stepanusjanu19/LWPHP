@@ -9,7 +9,7 @@ namespace Kei\Lwphp\Contract;
 interface RepositoryInterface
 {
     /** @return T|null */
-    public function findById(int|string $id): mixed;
+    public function findById(string $id): mixed;
 
     /** @return T[] */
     public function findAll(): array;
@@ -17,7 +17,7 @@ interface RepositoryInterface
     /** @param T $entity */
     public function save(mixed $entity): void;
 
-    public function delete(int|string $id): bool;
+    public function delete(string $id): bool;
 
     public function count(): int;
 }

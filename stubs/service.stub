@@ -1,0 +1,20 @@
+<?php
+
+namespace Kei\Lwphp\Service;
+
+use Kei\Lwphp\Base\Service;
+use Kei\Lwphp\Repository\{{class}}Repository;
+use Psr\Log\LoggerInterface;
+use DI\Attribute\Inject;
+
+class {{class}}Service extends Service
+{
+    public function __construct(
+        private readonly {{class}}Repository $repository,
+        LoggerInterface $logger
+    ) {
+        parent::__construct($logger);
+    }
+
+    // Add business logic here
+}

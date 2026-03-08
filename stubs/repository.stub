@@ -1,0 +1,16 @@
+<?php
+
+namespace Kei\Lwphp\Repository;
+
+use Kei\Lwphp\Base\Repository;
+use Kei\Lwphp\Entity\{{class}};
+
+class {{class}}Repository extends Repository
+{
+    protected function entityClass(): string
+    {
+        return {{class}}::class;
+    }
+
+    // Add your custom queries here
+}

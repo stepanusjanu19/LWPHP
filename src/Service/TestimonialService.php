@@ -23,7 +23,7 @@ class TestimonialService extends Service
         return $this->repository->findAll();
     }
 
-    public function getById(int $id)
+    public function getById(int|string $id)
     {
         return $this->repository->findById($id);
     }
@@ -42,7 +42,7 @@ class TestimonialService extends Service
         }, 'Create Testimonial');
     }
 
-    public function update(int $id, array $data)
+    public function update(int|string $id, array $data)
     {
         return $this->execute(function () use ($id, $data) {
             $entity = $this->repository->findById($id);
@@ -59,7 +59,7 @@ class TestimonialService extends Service
         }, 'Update Testimonial');
     }
 
-    public function delete(int $id): bool
+    public function delete(int|string $id): bool
     {
         return $this->execute(function () use ($id) {
             return $this->repository->delete($id);

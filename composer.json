@@ -18,7 +18,11 @@
         "monolog/monolog": "^3.5",
         "symfony/console": "^7.4",
         "symfony/string": "^7.4",
-        "twig/twig": "^3.23"
+        "twig/twig": "^3.23",
+        "symfony/uid": "^7.4",
+        "symfony/doctrine-bridge": "^7.4",
+        "react/http": "^1.11",
+        "react/socket": "^1.17"
     },
     "require-dev": {
         "symfony/var-dumper": "^6.0",

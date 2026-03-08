@@ -10,6 +10,7 @@
  */
 return [
     'name' => env('APP_NAME', 'LWPHP'),
+    'key' => env('APP_KEY', 'default_insecure_app_key_please_change_this_immediately'),
     'debug' => env('APP_DEBUG', true),
     'url' => env('APP_URL', 'http://localhost:8000'),
     'timezone' => env('APP_TIMEZONE', 'UTC'),
@@ -40,6 +41,13 @@ return [
                 'port' => (int) env('MEMCACHED_PORT', 11211),
             ],
         ],
+    ],
+
+    'traffic_shaper' => [
+        'enabled' => true,
+        'max_requests_per_minute' => 120,
+        'throttle_threshold' => 80,
+        'throttle_delay_ms' => 200,
     ],
 
     'logging' => [

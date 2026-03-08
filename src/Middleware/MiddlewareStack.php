@@ -67,8 +67,10 @@ class MiddlewareStack
         $stack = new self();
         // Outermost first: bandwidth wraps everything (measures full latency + compresses final response)
         $stack->add($c->get(BandwidthMiddleware::class));
+        $stack->add($c->get(TrafficShaperMiddleware::class));
         // Security runs inside bandwidth so gzip is applied AFTER security checks
         $stack->add($c->get(SecurityMiddleware::class));
+        $stack->add($c->get(SecureGatewayMiddleware::class));
         $stack->add($c->get(CsrfValidationMiddleware::class));
         // Auth covers protected dashboard/cms routes
         $stack->add($c->get(AuthMiddleware::class));
