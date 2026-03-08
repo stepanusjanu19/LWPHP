@@ -38,6 +38,13 @@ class App
             if (!is_dir($compilationDir)) {
                 @mkdir($compilationDir, 0755, true);
             }
+            // Fallback to /tmp for read-only serverless environments like Vercel/AWS Lambda
+            if (!is_writable($compilationDir)) {
+                $compilationDir = sys_get_temp_dir() . '/lwphp_di';
+                if (!is_dir($compilationDir)) {
+                    @mkdir($compilationDir, 0755, true);
+                }
+            }
             $builder->enableCompilation($compilationDir);
             $builder->writeProxiesToFile(true, $compilationDir . '/proxies');
         }
