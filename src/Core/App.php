@@ -35,6 +35,13 @@ class App
         $debug = (bool) $this->config->get('app.debug', true);
         if (!$debug) {
             $compilationDir = __DIR__ . '/../../storage/cache/di';
+
+            // Serverless Read-Only Filesystem Fallback (e.g., Vercel)
+            // If Vercel env is detected OR the storage folder isn't writable, use the rapid `/tmp` volume
+            if (getenv('VERCEL') || isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || (!is_dir($compilationDir) && !is_writable(dirname($compilationDir)))) {
+                $compilationDir = sys_get_temp_dir() . '/lwphp_cache/di';
+            }
+
             if (!is_dir($compilationDir)) {
                 @mkdir($compilationDir, 0755, true);
             }
