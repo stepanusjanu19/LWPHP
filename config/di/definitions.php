@@ -83,7 +83,13 @@ return [
         $dbParams['path'] = $sqlitePath;
         $dir = dirname($sqlitePath);
         if (!is_dir($dir)) {
-          mkdir($dir, 0755, true);
+          @mkdir($dir, 0755, true);
+        }
+
+        // Fallback for Serverless/Read-only environments (Vercel/Lambda)
+        if (!is_writable($dir) && !is_writable(dirname($dir))) {
+          $sqlitePath = sys_get_temp_dir() . '/database.sqlite';
+          $dbParams['path'] = $sqlitePath;
         }
       }
 
@@ -263,6 +269,15 @@ return [
 
     if (!is_dir($logDir)) {
       @mkdir($logDir, 0755, true);
+    }
+
+    // Fallback for Serverless/Read-only environments (Vercel/Lambda)
+    if (!is_writable($logDir) && !is_writable(dirname($logDir))) {
+      $logPath = sys_get_temp_dir() . '/lwphp_logs/lwphp.log';
+      $logDir = dirname($logPath);
+      if (!is_dir($logDir)) {
+        @mkdir($logDir, 0755, true);
+      }
     }
 
     $logger = new Logger($channel);
