@@ -26,17 +26,10 @@ class Router
 
     private function buildDispatcher(): Dispatcher
     {
-        $cacheFile = $this->config->get('cache.stores.file.path', sys_get_temp_dir() . '/lwphp_cache') . '/route.cache';
-        $cacheDir = dirname($cacheFile);
-
-        if (!is_dir($cacheDir)) {
-            @mkdir($cacheDir, 0755, true);
-        }
-
         return \FastRoute\cachedDispatcher(function (RouteCollector $r) {
             Routes::define($r);
         }, [
-            'cacheFile' => $cacheFile,
+            'cacheFile' => $this->config->get('cache.stores.file.path', sys_get_temp_dir() . '/lwphp_cache') . '/route.cache',
             'cacheDisabled' => (bool) $this->config->get('app.debug', true),
         ]);
     }

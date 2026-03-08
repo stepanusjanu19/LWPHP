@@ -23,25 +23,12 @@ namespace Kei\Lwphp\Security;
  */
 class ThreatLogger
 {
-    private string $logPath;
-
     public function __construct(
-        string $logPath,
+        private readonly string $logPath,
     ) {
         $dir = dirname($logPath);
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);
-        }
-
-        // Fallback for Serverless/Read-only environments (Vercel/Lambda)
-        if (!is_writable($dir) && !is_writable(dirname($dir))) {
-            $this->logPath = sys_get_temp_dir() . '/lwphp_logs/threats.log';
-            $fallbackDir = dirname($this->logPath);
-            if (!is_dir($fallbackDir)) {
-                @mkdir($fallbackDir, 0755, true);
-            }
-        } else {
-            $this->logPath = $logPath;
         }
     }
 
